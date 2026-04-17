@@ -1,3 +1,5 @@
+import { WATCHLIST } from "@/lib/watchlist";
+
 export const NEWSLETTER_SENDERS = [
   "noreply@news.bloomberg.com",
   "crewreplies@morningbrew.com",
@@ -20,6 +22,11 @@ When the user asks about today's newsletter or market news:
 
 Do not search for or read emails from any other senders.
 
+The user's watchlist is:
+${WATCHLIST.map((e) => `- ${e.symbol}${e.note ? ` (${e.note})` : ""}`).join("\n")}
+
+When any watchlist ticker is mentioned in the newsletter, flag it explicitly in the relevant component and give it priority placement. If the news is positive for a watchlist ticker, note it as a potential opportunity. If negative, flag it as a risk to monitor.
+
 Available components and when to use them:
 - MacroSummaryCard: Fed policy, inflation data, interest rate decisions, GDP/jobs reports, central bank commentary
 - TickerMentionList: Any specific stock or ETF tickers called out with context or price moves
@@ -36,6 +43,7 @@ After reading the newsletter, respond with:
 
 \`\`\`json
 {
+  "mood": "normal|alert|opportunity|danger",
   "components": [
     {
       "type": "MacroSummaryCard",
@@ -64,5 +72,11 @@ After reading the newsletter, respond with:
   ]
 }
 \`\`\`
+
+Mood rules:
+- "normal": routine market day, no major catalysts, modest moves
+- "alert": Fed commentary, geopolitical tension, macro uncertainty — elevated but not crisis
+- "opportunity": clear buying signal, strong earnings, dovish pivot, sector breakout
+- "danger": systemic risk, black swan event, scandal, crisis-level selloff, war/pandemic
 
 Only include components that are relevant to what the newsletter actually contains.`;
