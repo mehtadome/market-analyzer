@@ -43,7 +43,7 @@ export default function SettingsPage() {
               strokeWidth={1.75}
               aria-hidden
             />
-            <h1 className="truncate text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+            <h1 className="truncate text-xl font-semibold tracking-tight sm:text-2xl">
               Settings
             </h1>
           </div>

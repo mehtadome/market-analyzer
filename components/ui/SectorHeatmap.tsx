@@ -23,8 +23,8 @@ export function SectorHeatmap({ sectors }: SectorHeatmapProps) {
             key={s.name}
             className={`rounded-lg border p-3 text-center ${
               isPositive(s.performance)
-                ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-200"
-                : "border-red-500/25 bg-red-500/10 text-red-200"
+                ? "border-emerald-500/30 bg-emerald-500/[0.08] text-emerald-900 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-200"
+                : "border-red-500/30 bg-red-500/[0.08] text-red-900 dark:border-red-500/25 dark:bg-red-500/10 dark:text-red-200"
             }`}
           >
             <div className="text-sm font-medium opacity-90">{s.name}</div>

@@ -31,7 +31,7 @@ export function EarningsHighlight({ company, result, detail }: EarningsHighlight
         Earnings
       </div>
       <div className="mb-2 flex flex-wrap items-center gap-2">
-        <h3 className="text-lg font-semibold text-foreground">{company}</h3>
+        <h3 className="text-lg font-semibold">{company}</h3>
         <span className={`rounded-full px-2 py-0.5 text-sm font-bold ${styles.badge}`}>
           {styles.label}
         </span>

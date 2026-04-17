@@ -68,7 +68,7 @@ function renderComponent(spec: ComponentSpec) {
 }
 
 /** Dashboard layout: full-width macro/risk/summary; tickers + sectors paired; earnings in a row. */
-function DigestLayout({ components }: { components: ComponentSpec[] }) {
+export function DigestLayout({ components }: { components: ComponentSpec[] }) {
   const rows: React.ReactNode[] = [];
   let i = 0;
 
@@ -133,15 +133,24 @@ function DigestLayout({ components }: { components: ComponentSpec[] }) {
 
 interface DigestRendererProps {
   content: string;
+  /** When true, only the structured digest grid (no intro prose). */
+  componentsOnly?: boolean;
 }
 
 /** Parses the assistant JSON block and renders a Bloomberg-style digest grid (not chat bubbles). */
-export function DigestRenderer({ content }: DigestRendererProps) {
+export function DigestRenderer({ content, componentsOnly = false }: DigestRendererProps) {
   const hasJsonFence = /```json\n[\s\S]*?\n```/.test(content);
   const prose = parseProse(content);
   const components = parseComponents(content) as ComponentSpec[];
 
   if (!hasJsonFence || components.length === 0) {
+    if (componentsOnly) {
+      return (
+        <p className="text-base leading-relaxed text-muted-foreground">
+          No structured digest for today yet — check the LLM summary below, or run a new briefing.
+        </p>
+      );
+    }
     return (
       <div className="rounded-xl border border-border bg-card/40 p-6 shadow-sm backdrop-blur-sm">
         <p className="whitespace-pre-wrap text-base leading-relaxed text-foreground">
@@ -149,6 +158,10 @@ export function DigestRenderer({ content }: DigestRendererProps) {
         </p>
       </div>
     );
+  }
+
+  if (componentsOnly) {
+    return <DigestLayout components={components} />;
   }
 
   return (
