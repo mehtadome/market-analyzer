@@ -6,7 +6,8 @@ import { SectorHeatmap } from "@/components/ui/SectorHeatmap";
 import { EarningsHighlight } from "@/components/ui/EarningsHighlight";
 import { RiskFlag } from "@/components/ui/RiskFlag";
 import { NewsletterSummary } from "@/components/ui/NewsletterSummary";
-import { parseMood, parseProse, parseComponents } from "@/lib/parseResponse";
+import { BriefingSummary } from "@/components/ui/BriefingSummary";
+import { parseMood, parseComponents } from "@/lib/parseResponse";
 
 export { parseMood };
 
@@ -25,12 +26,11 @@ interface ComponentRendererProps {
  * and renders the appropriate UI components.
  */
 export function ComponentRenderer({ content }: ComponentRendererProps) {
-  const prose = parseProse(content);
   const components = parseComponents(content) as ComponentSpec[];
 
   if (components.length === 0) {
     return (
-      <p className="whitespace-pre-wrap text-base leading-relaxed text-foreground">
+      <p className="ds-prose" style={{ whiteSpace: "pre-wrap" }}>
         {content}
       </p>
     );
@@ -38,9 +38,6 @@ export function ComponentRenderer({ content }: ComponentRendererProps) {
 
   return (
     <div className="space-y-3">
-      {prose && (
-        <p className="text-base leading-relaxed text-foreground">{prose}</p>
-      )}
       {components.map((spec, i) => (
         <div key={i}>{renderComponent(spec)}</div>
       ))}
@@ -62,6 +59,8 @@ function renderComponent(spec: ComponentSpec) {
       return <RiskFlag {...spec.data} />;
     case "NewsletterSummary":
       return <NewsletterSummary {...spec.data} />;
+    case "BriefingSummary":
+      return <BriefingSummary {...spec.data} />;
     default:
       return null;
   }
@@ -140,20 +139,19 @@ interface DigestRendererProps {
 /** Parses the assistant JSON block and renders a Bloomberg-style digest grid (not chat bubbles). */
 export function DigestRenderer({ content, componentsOnly = false }: DigestRendererProps) {
   const hasJsonFence = /```json\n[\s\S]*?\n```/.test(content);
-  const prose = parseProse(content);
   const components = parseComponents(content) as ComponentSpec[];
 
   if (!hasJsonFence || components.length === 0) {
     if (componentsOnly) {
       return (
-        <p className="text-base leading-relaxed text-muted-foreground">
+        <p className="ds-prose" style={{ color: "var(--text-muted)" }}>
           No structured digest for today yet — check the LLM summary below, or run a new briefing.
         </p>
       );
     }
     return (
-      <div className="rounded-xl border border-border bg-card/40 p-6 shadow-sm backdrop-blur-sm">
-        <p className="whitespace-pre-wrap text-base leading-relaxed text-foreground">
+      <div className="card" style={{ padding: "1.5rem" }}>
+        <p className="ds-prose" style={{ whiteSpace: "pre-wrap" }}>
           {content}
         </p>
       </div>
@@ -164,14 +162,5 @@ export function DigestRenderer({ content, componentsOnly = false }: DigestRender
     return <DigestLayout components={components} />;
   }
 
-  return (
-    <div className="space-y-6">
-      {prose ? (
-        <p className="border-b border-border/50 pb-4 text-base leading-relaxed text-foreground/95">
-          {prose}
-        </p>
-      ) : null}
-      <DigestLayout components={components} />
-    </div>
-  );
+  return <DigestLayout components={components} />;
 }

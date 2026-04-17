@@ -38,5 +38,8 @@ Store past digest summaries in a local JSON file. Pass the last N digests into c
 ### 10. New component generation *(hard)*
 For edge cases the fixed component set can't handle, the model describes a new component (structure + data). The app either maps it to the closest existing component or — ambitiously — generates JSX at runtime. Requires a validation layer so malformed output doesn't crash the UI.
 
-### 11. Portfolio integration *(hard)*
+### 11. Charts and graphs via recharts *(medium)*
+Add `recharts` as a charting library. Model emits chart data in the JSON spec (e.g. sector % moves, macro indicator deltas, earnings beat/miss bars) and new components render them. Viable without a price feed since the model extracts figures directly from newsletter text. Start with `SectorBarChart`, then `MacroIndicatorBar`, then a `SentimentGauge`.
+
+### 12. Portfolio integration *(hard)*
 Connect to a brokerage API (Alpaca, Robinhood via unofficial API, or manual position file). Model contextualizes every news item against actual holdings — not just watchlist tickers but real position sizes and P&L. Changes "consider exiting" into "you have $4,200 at risk here."

@@ -54,6 +54,20 @@
   --background: oklch(0.965 0.006 260);
   --foreground: oklch(0.234 0.022 264);
   --heading-foreground: oklch(0.128 0.032 264);
+  /* Design-system semantic tokens — light */
+  --text:            #374151;
+  --text-heading:    #111827;
+  --text-muted:      #6b7280;
+  --btn-bg:          #f3f4f6;
+  --btn-bg-hover:    #e5e7eb;
+  --code-bg:         #f3f4f6;
+  --ds-error:        #b91c1c;
+  --dc-border:       #9ca3af;
+  --dc-border-low:   #6b7280;
+  --dc-border-med:   #d97706;
+  --dc-border-high:  #dc2626;
+  --dc-glow-high:    rgba(220, 38, 38, 0.18);
+  --dc-positive:     #15803d;
   --card: oklch(0.995 0.003 258);
   --card-foreground: oklch(0.234 0.022 264);
   --popover: oklch(0.995 0.003 258);
@@ -90,6 +104,20 @@
   /* Tailwind gray-900 */
   --background: #111827;
   --foreground: oklch(0.93 0.01 264);
+  /* Design-system semantic tokens — dark */
+  --text:            #d1d5db;
+  --text-heading:    #f9fafb;
+  --text-muted:      #9ca3af;
+  --btn-bg:          #1f2937;
+  --btn-bg-hover:    #374151;
+  --code-bg:         #1f2937;
+  --ds-error:        #f87171;
+  --dc-border:       #374151;
+  --dc-border-low:   #6b7280;
+  --dc-border-med:   #f59e0b;
+  --dc-border-high:  #f87171;
+  --dc-glow-high:    rgba(248, 113, 113, 0.22);
+  --dc-positive:     #4ade80;
   --heading-foreground: oklch(0.96 0.012 264);
   --card: oklch(0.15 0.022 264);
   --card-foreground: oklch(0.93 0.01 264);
@@ -122,48 +150,14 @@
   --sidebar-ring: oklch(0.58 0.12 250);
 }
 
-/* Neutral mid-grey — distinct from light (paper) and dark (blue-gray) */
-.grey {
-  --background: oklch(0.48 0.018 264);
-  --foreground: oklch(0.95 0.008 264);
-  --heading-foreground: oklch(0.98 0.006 264);
-  --card: oklch(0.42 0.02 264);
-  --card-foreground: oklch(0.95 0.008 264);
-  --popover: oklch(0.44 0.018 264);
-  --popover-foreground: oklch(0.95 0.008 264);
-  --primary: oklch(0.78 0.1 250);
-  --primary-foreground: oklch(0.14 0.02 264);
-  --secondary: oklch(0.4 0.022 264);
-  --secondary-foreground: oklch(0.92 0.012 264);
-  --muted: oklch(0.38 0.02 264);
-  --muted-foreground: oklch(0.72 0.02 264);
-  --accent: oklch(0.4 0.025 264);
-  --accent-foreground: oklch(0.95 0.008 264);
-  --destructive: oklch(0.68 0.18 22);
-  --border: oklch(1 0 0 / 11%);
-  --input: oklch(1 0 0 / 13%);
-  --ring: oklch(0.65 0.1 250);
-  --chart-1: oklch(0.72 0.12 250);
-  --chart-2: oklch(0.65 0.04 264);
-  --chart-3: oklch(0.58 0.06 200);
-  --chart-4: oklch(0.55 0.08 280);
-  --chart-5: oklch(0.5 0.06 264);
-  --sidebar: oklch(0.4 0.02 264);
-  --sidebar-foreground: oklch(0.95 0.008 264);
-  --sidebar-primary: oklch(0.78 0.1 250);
-  --sidebar-primary-foreground: oklch(0.14 0.02 264);
-  --sidebar-accent: oklch(0.38 0.02 264);
-  --sidebar-accent-foreground: oklch(0.95 0.008 264);
-  --sidebar-border: oklch(1 0 0 / 11%);
-  --sidebar-ring: oklch(0.65 0.1 250);
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
   }
   html {
     @apply font-sans;
@@ -175,5 +169,152 @@
   h3,
   h4 {
     @apply text-heading-foreground;
+    color: var(--text-heading);
   }
+}
+
+/* ── Design-system component classes (styling guide) ───────── */
+
+/* Card anatomy */
+.card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  background: var(--background);
+  overflow: hidden;
+  border: 1px solid var(--dc-border);
+}
+.card--high {
+  border: 2px solid var(--dc-border-high);
+  box-shadow: 0 0 0 1px var(--dc-glow-high);
+}
+.card--medium { border-color: var(--dc-border-med); }
+.card--low    { border-color: var(--dc-border-low); }
+
+.card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem 0.75rem;
+  border-bottom: 1px solid var(--dc-border);
+  background: var(--btn-bg);
+}
+.card__body {
+  flex: 1;
+  padding: 0.9rem 1rem 0.5rem;
+}
+.card__footer {
+  margin-top: auto;
+  padding: 0.35rem 1rem 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+/* Text roles */
+.ds-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+.ds-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-heading);
+  line-height: 1.35;
+}
+.ds-prose {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--text);
+}
+.ds-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Generic chip/badge */
+.ds-chip {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background: var(--btn-bg);
+  color: var(--text-heading);
+  border: 1px solid var(--dc-border);
+}
+
+/* Buttons */
+.btn {
+  font: inherit;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--dc-border);
+  background: var(--btn-bg);
+  color: var(--text-heading);
+  transition: background 0.15s;
+}
+.btn:hover:not(:disabled) { background: var(--btn-bg-hover); }
+.btn:disabled { opacity: 0.65; cursor: not-allowed; }
+
+/* Tab pills */
+.tab {
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--dc-border);
+  background: var(--btn-bg);
+  color: var(--text-heading);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: default;
+  transition: background 0.15s;
+}
+.tab--active {
+  background: var(--text-heading);
+  color: var(--background);
+  border-color: var(--text-heading);
+}
+
+/* Shell layout */
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.shell__header {
+  padding: 1rem clamp(1rem, 4vw, 2.5rem);
+  border-bottom: 1px solid var(--dc-border);
+  background: var(--btn-bg);
+}
+.shell__main {
+  flex: 1;
+  padding: 1.5rem clamp(1rem, 4vw, 2.5rem);
+}
+
+/* Card list */
+.card-list { display: flex; flex-direction: column; gap: 1.25rem; width: 100%; }
+
+/* Header row */
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Spin animation */
+@keyframes ds-spin {
+  to { transform: rotate(360deg); }
+}
+.spinning {
+  animation: ds-spin 0.85s linear infinite;
+  transform-origin: 50% 50%;
 }

@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   description: "Reads your newsletters and surfaces what matters",
 };
 
-const themeInitScript = `(function(){try{var k=${JSON.stringify(THEME_STORAGE_KEY)};var t=localStorage.getItem(k);if(t!=="dark"&&t!=="grey"&&t!=="light")t="dark";var d=document.documentElement;d.classList.remove("dark","grey");if(t==="dark")d.classList.add("dark");else if(t==="grey")d.classList.add("grey");}catch(e){}})();`;
+const themeInitScript = `(function(){try{var k=${JSON.stringify(THEME_STORAGE_KEY)};var t=localStorage.getItem(k);if(t!=="dark"&&t!=="light")t="dark";var d=document.documentElement;d.classList.remove("dark");if(t==="dark")d.classList.add("dark");}catch(e){}})();`;
 
 export default function RootLayout({
   children,

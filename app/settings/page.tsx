@@ -16,59 +16,77 @@ const OPTIONS: { id: Theme; label: string; description: string }[] = [
     label: "Dark",
     description: "Deep background with cool accents",
   },
-  {
-    id: "grey",
-    label: "Grey",
-    description: "Neutral mid-grey palette",
-  },
 ];
 
 export default function SettingsPage() {
   const { theme, setTheme, mounted } = useTheme();
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <header className="flex shrink-0 items-center justify-between gap-4 border-b border-border bg-card/70 px-5 py-4 backdrop-blur-md sm:px-6">
-        <div className="flex min-w-0 items-center gap-3">
-          <Link
-            href="/"
-            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            aria-label="Back to home"
+    <div className="shell" style={{ background: "var(--background)" }}>
+      <header
+        className="shell__header"
+        style={{ display: "flex", alignItems: "center", gap: "0.875rem" }}
+      >
+        <Link
+          href="/"
+          className="btn"
+          style={{ padding: "0.35rem 0.45rem", display: "flex", alignItems: "center" }}
+          aria-label="Back to home"
+        >
+          <ArrowLeft style={{ width: "1rem", height: "1rem" }} />
+        </Link>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <ChartCandlestick
+            style={{ width: "1.25rem", height: "1.25rem", flexShrink: 0 }}
+            strokeWidth={1.75}
+            aria-hidden
+          />
+          <h1
+            style={{
+              fontSize: "1.125rem",
+              fontWeight: 700,
+              color: "var(--text-heading)",
+              letterSpacing: "-0.02em",
+            }}
           >
-            <ArrowLeft className="size-5" />
-          </Link>
-          <div className="flex min-w-0 items-center gap-2.5">
-            <ChartCandlestick
-              className="size-7 shrink-0 sm:size-8"
-              strokeWidth={1.75}
-              aria-hidden
-            />
-            <h1 className="truncate text-xl font-semibold tracking-tight sm:text-2xl">
-              Settings
-            </h1>
-          </div>
+            Settings
+          </h1>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-lg flex-1 px-5 py-8 sm:px-6">
+      <main
+        className="shell__main"
+        style={{ maxWidth: "36rem", marginLeft: "auto", marginRight: "auto" }}
+      >
         <section aria-labelledby="appearance-heading">
           <h2
             id="appearance-heading"
-            className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground"
+            className="ds-label"
+            style={{ marginBottom: "1rem" }}
           >
             Appearance
           </h2>
+
           {!mounted ? (
-            <div className="space-y-2" aria-hidden>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }} aria-hidden>
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="h-[4.5rem] animate-pulse rounded-xl bg-muted/60"
+                  style={{
+                    height: "4.5rem",
+                    borderRadius: "8px",
+                    background: "var(--btn-bg)",
+                    opacity: 0.65,
+                  }}
                 />
               ))}
             </div>
           ) : (
-            <div className="space-y-2" role="radiogroup" aria-label="Theme">
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
+              role="radiogroup"
+              aria-label="Theme"
+            >
               {OPTIONS.map((opt) => {
                 const selected = theme === opt.id;
                 return (
@@ -78,31 +96,64 @@ export default function SettingsPage() {
                     role="radio"
                     aria-checked={selected}
                     onClick={() => setTheme(opt.id)}
-                    className={`flex w-full items-center justify-between gap-4 rounded-xl border px-4 py-3.5 text-left transition-colors ${
-                      selected
-                        ? "border-primary bg-primary/10 ring-2 ring-ring/40"
-                        : "border-border bg-card/50 hover:bg-muted/50"
-                    }`}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: "1rem",
+                      width: "100%",
+                      padding: "0.875rem 1rem",
+                      borderRadius: "8px",
+                      border: selected
+                        ? "2px solid var(--text-heading)"
+                        : "1px solid var(--dc-border)",
+                      background: selected ? "var(--btn-bg)" : "var(--background)",
+                      textAlign: "left",
+                      cursor: "pointer",
+                      transition: "border-color 0.15s, background 0.15s",
+                    }}
                   >
                     <div>
-                      <div className="font-medium text-foreground">
+                      <div
+                        style={{
+                          fontSize: "0.9375rem",
+                          fontWeight: 600,
+                          color: "var(--text-heading)",
+                        }}
+                      >
                         {opt.label}
                       </div>
-                      <div className="mt-0.5 text-sm text-muted-foreground">
+                      <div className="ds-meta" style={{ marginTop: "0.2rem" }}>
                         {opt.description}
                       </div>
                     </div>
+                    {/* Radio indicator */}
                     <span
-                      className={`flex size-4 shrink-0 items-center justify-center rounded-full border-2 ${
-                        selected
-                          ? "border-primary bg-primary"
-                          : "border-muted-foreground/40"
-                      }`}
+                      style={{
+                        display: "flex",
+                        width: "1rem",
+                        height: "1rem",
+                        flexShrink: 0,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: "50%",
+                        border: selected
+                          ? "2px solid var(--text-heading)"
+                          : "2px solid var(--dc-border-low)",
+                        background: selected ? "var(--text-heading)" : "transparent",
+                      }}
                       aria-hidden
                     >
-                      {selected ? (
-                        <span className="size-1.5 rounded-full bg-primary-foreground" />
-                      ) : null}
+                      {selected && (
+                        <span
+                          style={{
+                            width: "0.375rem",
+                            height: "0.375rem",
+                            borderRadius: "50%",
+                            background: "var(--background)",
+                          }}
+                        />
+                      )}
                     </span>
                   </button>
                 );
