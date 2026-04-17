@@ -1,0 +1,43 @@
+import fs from "fs";
+import path from "path";
+
+const USAGE_FILE = path.join(process.cwd(), "usage.json");
+
+// Haiku pricing (per 1M tokens)
+const INPUT_COST_PER_TOKEN = 0.80 / 1_000_000;
+const OUTPUT_COST_PER_TOKEN = 5.00 / 1_000_000;
+
+interface UsageRecord {
+  totalInputTokens: number;
+  totalOutputTokens: number;
+  totalCostUsd: number;
+  sessionCount: number;
+}
+
+function read(): UsageRecord {
+  try {
+    return JSON.parse(fs.readFileSync(USAGE_FILE, "utf-8"));
+  } catch {
+    return { totalInputTokens: 0, totalOutputTokens: 0, totalCostUsd: 0, sessionCount: 0 };
+  }
+}
+
+function write(record: UsageRecord) {
+  fs.writeFileSync(USAGE_FILE, JSON.stringify(record, null, 2));
+}
+
+export function recordUsage(inputTokens: number, outputTokens: number) {
+  const current = read();
+  const cost = inputTokens * INPUT_COST_PER_TOKEN + outputTokens * OUTPUT_COST_PER_TOKEN;
+
+  write({
+    totalInputTokens: current.totalInputTokens + inputTokens,
+    totalOutputTokens: current.totalOutputTokens + outputTokens,
+    totalCostUsd: current.totalCostUsd + cost,
+    sessionCount: current.sessionCount + 1,
+  });
+}
+
+export function getUsage(): UsageRecord {
+  return read();
+}
