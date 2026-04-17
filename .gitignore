@@ -45,3 +45,6 @@ interview.md
 
 # local api usage tracking
 usage.json
+
+# generated digests (runtime output)
+/digests
