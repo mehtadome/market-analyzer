@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# personal notes
+interview.md
+
+# local api usage tracking
+usage.json
