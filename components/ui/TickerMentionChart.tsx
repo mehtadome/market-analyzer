@@ -16,8 +16,10 @@ interface Props {
 }
 
 const BAR_FILL = "var(--chart-1)";
-const TICK_W = 72; // width of the foreignObject that renders each Ticker Tag
-const TICK_H = 36; // height of the foreignObject that renders each Ticker Tag
+/** Matches `<Bar maxBarSize={…} />` so label boxes align with bar thickness. */
+const BAR_THICKNESS = 24;
+const TICK_W = 56; // width of the foreignObject that renders each ticker tag
+const TICK_H = BAR_THICKNESS;
 
 function YAxisTick({
   x, y, payload, directionMap,
@@ -39,6 +41,7 @@ function YAxisTick({
       <DigestTickerBadge
         symbol={payload.value}
         direction={directionMap.get(payload.value) ?? "neutral"}
+        compact
       />
     </foreignObject>
   );
@@ -113,7 +116,7 @@ export function TickerMentionChart({ tickers }: Props) {
               dataKey="mentions"
               fill={BAR_FILL}
               radius={[0, 4, 4, 0]}
-              maxBarSize={24}
+              maxBarSize={BAR_THICKNESS}
             />
           </BarChart>
         </ResponsiveContainer>
