@@ -1,4 +1,4 @@
-import { renderBold } from "@/lib/renderBold";
+import { RichText } from "@/components/ui/RichText";
 
 interface Indicator {
   label: string;
@@ -21,7 +21,7 @@ export function MacroSummaryCard({ title, summary, indicators = [] }: MacroSumma
         </div>
       </div>
       <div className="card__body">
-        <p className="ds-prose">{renderBold(summary)}</p>
+        <p className="ds-prose"><RichText text={summary} /></p>
         {indicators.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-3">
             {indicators.map((ind) => (
