@@ -1,4 +1,4 @@
-import { RichText } from "@/components/ui/RichText";
+import { renderBold } from "@/lib/renderBold";
 
 interface NewsletterSummaryProps {
   title: string;
@@ -15,7 +15,7 @@ export function NewsletterSummary({ title, summary }: NewsletterSummaryProps) {
         </div>
       </div>
       <div className="card__body">
-        <p className="ds-prose"><RichText text={summary} /></p>
+        <p className="ds-prose">{renderBold(summary)}</p>
       </div>
     </div>
   );

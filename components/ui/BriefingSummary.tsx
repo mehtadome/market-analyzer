@@ -1,4 +1,4 @@
-import { RichText } from "@/components/ui/RichText";
+import { renderBold } from "@/lib/renderBold";
 
 interface BriefingSummaryProps {
   headline: string;
@@ -12,8 +12,8 @@ export function BriefingSummary({ headline, body }: BriefingSummaryProps) {
         <div className="ds-label">Today&apos;s Briefing</div>
       </div>
       <div className="card__body">
-        <p className="ds-title" style={{ marginBottom: "0.6rem" }}><RichText text={headline} /></p>
-        <p className="ds-prose"><RichText text={body} /></p>
+        <p className="ds-title" style={{ marginBottom: "0.6rem" }}>{renderBold(headline)}</p>
+        <p className="ds-prose">{renderBold(body)}</p>
       </div>
     </div>
   );

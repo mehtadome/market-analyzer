@@ -28,8 +28,6 @@ interface DigestTickerBadgeProps {
   listSlot?: boolean;
   /** Tighter padding and type for chart Y-axis labels (matches bar row height). */
   compact?: boolean;
-  /** Renders inline within prose — adds vertical-align and margin. */
-  inline?: boolean;
 }
 
 export function DigestTickerBadge({
@@ -37,7 +35,6 @@ export function DigestTickerBadge({
   direction = "neutral",
   listSlot,
   compact,
-  inline,
 }: DigestTickerBadgeProps) {
   const s = directionStyle[direction] ?? directionStyle.neutral;
 
@@ -45,7 +42,6 @@ export function DigestTickerBadge({
     <span
       style={{
         flexShrink: 0,
-        ...(inline ? { verticalAlign: "middle", margin: "0 0.15em" } : {}),
         ...(listSlot ? { minWidth: "3.5rem" } : {}),
         ...(compact
           ? {

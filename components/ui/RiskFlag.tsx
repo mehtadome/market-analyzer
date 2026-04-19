@@ -1,4 +1,4 @@
-import { RichText } from "@/components/ui/RichText";
+import { renderBold } from "@/lib/renderBold";
 
 interface RiskFlagProps {
   headline: string;
@@ -22,7 +22,7 @@ export function RiskFlag({ headline, detail, severity }: RiskFlagProps) {
       </div>
       <div className="card__body">
         <div className="ds-title" style={{ marginBottom: "0.35rem" }}>{headline}</div>
-        <p className="ds-prose"><RichText text={detail} /></p>
+        <p className="ds-prose">{renderBold(detail)}</p>
       </div>
     </div>
   );

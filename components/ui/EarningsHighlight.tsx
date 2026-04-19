@@ -1,5 +1,3 @@
-import { RichText } from "@/components/ui/RichText";
-
 interface EarningsHighlightProps {
   company: string;
   result: "beat" | "miss" | "inline";
@@ -63,7 +61,7 @@ export function EarningsHighlight({ company, result, detail }: EarningsHighlight
         </span>
       </div>
       <div className="card__body">
-        <p className="ds-prose"><RichText text={detail} /></p>
+        <p className="ds-prose">{detail}</p>
       </div>
     </div>
   );

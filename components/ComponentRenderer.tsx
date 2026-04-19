@@ -8,8 +8,6 @@ import { RiskFlag } from "@/components/ui/RiskFlag";
 import { NewsletterSummary } from "@/components/ui/NewsletterSummary";
 import { BriefingSummary } from "@/components/ui/BriefingSummary";
 import { parseComponents } from "@/lib/parseResponse";
-import { TickerContext, type TickerMap } from "@/lib/TickerContext";
-import type { DigestTickerDirection } from "@/components/ui/DigestTickerBadge";
 
 interface ComponentSpec {
   type: string;
@@ -66,18 +64,8 @@ function renderComponent(spec: ComponentSpec) {
   }
 }
 
-function buildTickerMap(components: ComponentSpec[]): TickerMap {
-  const map = new Map<string, DigestTickerDirection>();
-  const list = components.find((c) => c.type === "TickerMentionList");
-  for (const t of (list?.data?.tickers ?? []) as { symbol: string; direction?: DigestTickerDirection }[]) {
-    map.set(t.symbol, t.direction ?? "neutral");
-  }
-  return map;
-}
-
 /** Dashboard layout: full-width macro/risk/summary; tickers + sectors paired; earnings in a row. */
 export function DigestLayout({ components }: { components: ComponentSpec[] }) {
-  const tickerMap = buildTickerMap(components);
   const rows: React.ReactNode[] = [];
   let i = 0;
 
@@ -137,11 +125,7 @@ export function DigestLayout({ components }: { components: ComponentSpec[] }) {
     i++;
   }
 
-  return (
-    <TickerContext.Provider value={tickerMap}>
-      <div className="space-y-6">{rows}</div>
-    </TickerContext.Provider>
-  );
+  return <div className="space-y-6">{rows}</div>;
 }
 
 interface DigestRendererProps {
