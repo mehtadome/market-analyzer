@@ -1,0 +1,60 @@
+{
+  "fixture": "2026-04-17.txt",
+  "description": "Geopolitical risk day — Iran/Hormuz strait uncertainty, oil selloff, treasury rally",
+  "assertions": [
+    {
+      "id": "mood",
+      "description": "Mood should be alert or danger (not normal/opportunity) — active geopolitical risk",
+      "check": "mood_one_of",
+      "expected": ["alert", "danger"]
+    },
+    {
+      "id": "briefing_summary_present",
+      "description": "BriefingSummary must appear exactly once",
+      "check": "component_count",
+      "type": "BriefingSummary",
+      "expected": 1
+    },
+    {
+      "id": "risk_flag_present",
+      "description": "RiskFlag must appear — Hormuz closure is a systemic market risk",
+      "check": "component_min_count",
+      "type": "RiskFlag",
+      "expected": 1
+    },
+    {
+      "id": "risk_flag_severity",
+      "description": "RiskFlag severity must be high — active strait closure affects global energy supply",
+      "check": "component_field",
+      "type": "RiskFlag",
+      "field": "data.severity",
+      "expected": "high"
+    },
+    {
+      "id": "macro_card_present",
+      "description": "MacroSummaryCard must appear — oil price move and treasury yield shift are macro events",
+      "check": "component_min_count",
+      "type": "MacroSummaryCard",
+      "expected": 1
+    },
+    {
+      "id": "no_earnings",
+      "description": "EarningsHighlight should not appear — no earnings in this newsletter",
+      "check": "component_count",
+      "type": "EarningsHighlight",
+      "expected": 0
+    },
+    {
+      "id": "valid_component_types",
+      "description": "All component types must be from the registered set",
+      "check": "valid_types",
+      "expected": ["BriefingSummary", "MacroSummaryCard", "TickerMentionList", "SectorHeatmap", "EarningsHighlight", "RiskFlag", "NewsletterSummary"]
+    },
+    {
+      "id": "valid_mood",
+      "description": "Mood must be one of the four valid values",
+      "check": "mood_one_of",
+      "expected": ["normal", "alert", "opportunity", "danger"]
+    }
+  ]
+}
