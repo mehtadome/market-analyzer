@@ -7,19 +7,42 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  Cell,
 } from "recharts";
+import { DigestTickerBadge } from "@/components/ui/DigestTickerBadge";
 import type { TickerSummary } from "@/app/api/tickers/route";
 
 interface Props {
   tickers: TickerSummary[];
 }
 
-const directionColor: Record<string, string> = {
-  up:      "var(--dc-border-pos, #22c55e)",
-  down:    "var(--dc-border-high, #ef4444)",
-  neutral: "var(--text-muted, #6b7280)",
-};
+const BAR_FILL = "var(--chart-1)";
+const TICK_W = 72; // width of the foreignObject that renders each Ticker Tag
+const TICK_H = 36; // height of the foreignObject that renders each Ticker Tag
+
+function YAxisTick({
+  x, y, payload, directionMap,
+}: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  x?: any; y?: any;
+  payload?: { value: string };
+  directionMap: Map<string, "up" | "down" | "neutral">;
+}) {
+  if (!payload) return null;
+  return (
+    <foreignObject
+      x={(x ?? 0) - TICK_W - 4}
+      y={(y ?? 0) - TICK_H / 2}
+      width={TICK_W}
+      height={TICK_H}
+      style={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+    >
+      <DigestTickerBadge
+        symbol={payload.value}
+        direction={directionMap.get(payload.value) ?? "neutral"}
+      />
+    </foreignObject>
+  );
+}
 
 export function TickerMentionChart({ tickers }: Props) {
   if (tickers.length === 0) {
@@ -34,26 +57,24 @@ export function TickerMentionChart({ tickers }: Props) {
 
   // Cap at top 12 for readability
   const data = tickers.slice(0, 12);
+  const directionMap = new Map(data.map((t) => [t.symbol, t.direction]));
 
   return (
     <div className="card">
       <div className="card__header">
         <div>
-          <div className="ds-label">7-day mention frequency</div>
+          <div className="ds-label">Bi-weekly mention frequency</div>
           <div className="ds-title" style={{ marginTop: "0.15rem" }}>
             Watchlist activity
           </div>
         </div>
       </div>
       <div className="card__body" style={{ paddingBottom: "1.25rem" }}>
-        <p className="ds-meta" style={{ marginBottom: "1rem" }}>
-          Bar color reflects most-recent direction — green up, red down, gray neutral.
-        </p>
-        <ResponsiveContainer width="100%" height={data.length * 40 + 16}>
+        <ResponsiveContainer width="100%" height={data.length * 40 + 40}>
           <BarChart
             layout="vertical"
             data={data}
-            margin={{ top: 0, right: 24, left: 0, bottom: 0 }}
+            margin={{ top: 0, right: 24, left: 8, bottom: 24 }}
           >
             <XAxis
               type="number"
@@ -66,8 +87,8 @@ export function TickerMentionChart({ tickers }: Props) {
             <YAxis
               type="category"
               dataKey="symbol"
-              width={52}
-              tick={{ fontSize: 12, fontWeight: 600, fill: "var(--text-heading)" }}
+              width={TICK_W + 4}
+              tick={(props) => <YAxisTick {...props} directionMap={directionMap} />}
               axisLine={false}
               tickLine={false}
             />
@@ -81,21 +102,19 @@ export function TickerMentionChart({ tickers }: Props) {
                 color: "var(--text)",
               }}
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              formatter={(value: any, _name: any, props: any) => [
+              formatter={(value: any) => [
                 `${value as number} mention${(value as number) !== 1 ? "s" : ""}`,
-                (props?.payload as TickerSummary)?.direction ?? "",
+                "7-day total",
               ]}
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               labelFormatter={(label: any) => String(label)}
             />
-            <Bar dataKey="mentions" radius={[0, 4, 4, 0]} maxBarSize={24}>
-              {data.map((entry) => (
-                <Cell
-                  key={entry.symbol}
-                  fill={directionColor[entry.direction] ?? directionColor.neutral}
-                />
-              ))}
-            </Bar>
+            <Bar
+              dataKey="mentions"
+              fill={BAR_FILL}
+              radius={[0, 4, 4, 0]}
+              maxBarSize={24}
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>
