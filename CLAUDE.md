@@ -13,6 +13,7 @@ npm run dev        # start dev server at localhost:3000
 npm run build      # production build
 npm run lint       # ESLint
 node node_modules/typescript/lib/tsc.js --noEmit   # type-check (npx tsc --noEmit also works)
+npm test                                            # Vitest unit tests (lib/__tests__/)
 ```
 
 No test suite exists. Type-check before declaring work done.
