@@ -1,5 +1,6 @@
 import { google } from "googleapis";
 import { gmail_v1 } from "googleapis";
+import { withRetry } from "@/lib/retry";
 
 const BODY_CHAR_LIMIT = 8000;
 
@@ -42,11 +43,9 @@ export async function searchEmails(
   query: string,
   maxResults: number = 1
 ): Promise<EmailSummary[]> {
-  const listRes = await gmail.users.messages.list({
-    userId: "me",
-    q: query,
-    maxResults,
-  });
+  const listRes = await withRetry(() =>
+    gmail.users.messages.list({ userId: "me", q: query, maxResults })
+  );
 
   const stubs = listRes.data.messages ?? [];
   const results: EmailSummary[] = [];
@@ -54,12 +53,14 @@ export async function searchEmails(
   for (const stub of stubs) {
     if (!stub.id) continue;
     // format: "metadata" skips the body entirely — cheaper than "full", enough to identify the email
-    const msg = await gmail.users.messages.get({
-      userId: "me",
-      id: stub.id,
-      format: "metadata",
-      metadataHeaders: ["Subject", "From"],
-    });
+    const msg = await withRetry(() =>
+      gmail.users.messages.get({
+        userId: "me",
+        id: stub.id!,
+        format: "metadata",
+        metadataHeaders: ["Subject", "From"],
+      })
+    );
     const headers = indexHeaders(msg.data.payload?.headers ?? []);
     results.push({
       id: stub.id,
@@ -75,11 +76,9 @@ export async function searchEmails(
  * Fetch the full plain-text body of an email by message ID.
  */
 export async function getEmail(messageId: string): Promise<EmailContent> {
-  const msg = await gmail.users.messages.get({
-    userId: "me",
-    id: messageId,
-    format: "full",
-  });
+  const msg = await withRetry(() =>
+    gmail.users.messages.get({ userId: "me", id: messageId, format: "full" })
+  );
 
   const headers = indexHeaders(msg.data.payload?.headers ?? []);
   const body = extractBody(msg.data.payload ?? {});
