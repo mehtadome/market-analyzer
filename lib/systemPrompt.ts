@@ -5,6 +5,7 @@ export const NEWSLETTER_SENDERS = [
   "crewreplies@morningbrew.com",
   "newsletter@stocktwits.com",
   "account@seekingalpha.com",
+  "newsletter@thedailyrip.stock-twits.com",
 ];
 
 const sendersGmailQuery = `(${NEWSLETTER_SENDERS.map((s) => `from:${s}`).join(" OR ")}) newer_than:7d`;
