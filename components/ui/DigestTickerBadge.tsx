@@ -3,14 +3,14 @@ const directionStyle: Record<
   { border: string; color: string; bg: string }
 > = {
   up: {
-    border: "#22c55e44",
-    color: "#16a34a",
-    bg: "rgba(34,197,94,0.10)",
+    border: "var(--dc-positive-border)",
+    color: "var(--dc-positive)",
+    bg: "var(--dc-positive-bg)",
   },
   down: {
-    border: "#ef444444",
-    color: "#dc2626",
-    bg: "rgba(239,68,68,0.10)",
+    border: "var(--dc-danger-border)",
+    color: "var(--dc-border-high)",
+    bg: "var(--dc-danger-bg)",
   },
   neutral: {
     border: "var(--dc-border)",

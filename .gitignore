@@ -43,6 +43,8 @@ next-env.d.ts
 # personal notes
 interview.md
 trading.md
+presentation.md
+critique.md
 
 # local api usage tracking
 usage.json

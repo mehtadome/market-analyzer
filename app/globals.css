@@ -68,6 +68,10 @@
   --dc-border-high:  #dc2626;
   --dc-glow-high:    rgba(220, 38, 38, 0.18);
   --dc-positive:     #15803d;
+  --dc-positive-border: rgba(34, 197, 94, 0.27);
+  --dc-positive-bg:     rgba(34, 197, 94, 0.10);
+  --dc-danger-border:   rgba(239, 68, 68, 0.27);
+  --dc-danger-bg:       rgba(239, 68, 68, 0.10);
   --card: oklch(0.995 0.003 258);
   --card-foreground: oklch(0.234 0.022 264);
   --popover: oklch(0.995 0.003 258);
@@ -118,6 +122,10 @@
   --dc-border-high:  #f87171;
   --dc-glow-high:    rgba(248, 113, 113, 0.22);
   --dc-positive:     #4ade80;
+  --dc-positive-border: rgba(34, 197, 94, 0.27);
+  --dc-positive-bg:     rgba(34, 197, 94, 0.10);
+  --dc-danger-border:   rgba(239, 68, 68, 0.27);
+  --dc-danger-bg:       rgba(239, 68, 68, 0.10);
   --heading-foreground: oklch(0.96 0.012 264);
   --card: oklch(0.15 0.022 264);
   --card-foreground: oklch(0.93 0.01 264);
