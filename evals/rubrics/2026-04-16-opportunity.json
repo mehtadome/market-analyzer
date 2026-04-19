@@ -1,0 +1,53 @@
+{
+  "fixture": "2026-04-16-opportunity.txt",
+  "description": "Opportunity day — Fed dovish pivot, rate cut signaled, broad market rally across growth and rate-sensitive sectors",
+  "assertions": [
+    {
+      "id": "mood",
+      "description": "Mood must be opportunity — clear dovish pivot with explicit buying signal",
+      "check": "mood_one_of",
+      "expected": ["opportunity"]
+    },
+    {
+      "id": "briefing_summary_present",
+      "description": "BriefingSummary must appear exactly once",
+      "check": "component_count",
+      "type": "BriefingSummary",
+      "expected": 1
+    },
+    {
+      "id": "macro_card_present",
+      "description": "MacroSummaryCard must appear — Fed pivot and PCE print are the primary macro drivers",
+      "check": "component_min_count",
+      "type": "MacroSummaryCard",
+      "expected": 1
+    },
+    {
+      "id": "sector_heatmap_present",
+      "description": "SectorHeatmap must appear — explicit sector performance data with XLRE, XLU, XLK, XLF figures",
+      "check": "component_min_count",
+      "type": "SectorHeatmap",
+      "expected": 1
+    },
+    {
+      "id": "ticker_list_present",
+      "description": "TickerMentionList must appear — TSLA, PLTR, GOOG all called out with moves",
+      "check": "component_min_count",
+      "type": "TickerMentionList",
+      "expected": 1
+    },
+    {
+      "id": "no_risk_flag",
+      "description": "RiskFlag should not appear — no geopolitical or systemic risk present",
+      "check": "component_count",
+      "type": "RiskFlag",
+      "expected": 0
+    },
+    {
+      "id": "valid_component_types",
+      "description": "All component types must be from the registered set",
+      "check": "valid_types",
+      "expected": ["BriefingSummary", "MacroSummaryCard", "TickerMentionList", "SectorHeatmap", "EarningsHighlight", "RiskFlag", "NewsletterSummary"]
+    }
+  ]
+}

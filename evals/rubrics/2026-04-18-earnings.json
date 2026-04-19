@@ -1,0 +1,46 @@
+{
+  "fixture": "2026-04-18-earnings.txt",
+  "description": "Earnings day — MSFT/NFLX beat, AMZN mixed, INTC miss; broad tech outperformance",
+  "assertions": [
+    {
+      "id": "mood",
+      "description": "Mood should be normal or opportunity — strong beats dominate, one miss is not systemic",
+      "check": "mood_one_of",
+      "expected": ["normal", "opportunity"]
+    },
+    {
+      "id": "briefing_summary_present",
+      "description": "BriefingSummary must appear exactly once",
+      "check": "component_count",
+      "type": "BriefingSummary",
+      "expected": 1
+    },
+    {
+      "id": "earnings_present",
+      "description": "At least one EarningsHighlight must appear — multiple earnings results reported",
+      "check": "component_min_count",
+      "type": "EarningsHighlight",
+      "expected": 1
+    },
+    {
+      "id": "ticker_list_present",
+      "description": "TickerMentionList must appear — MSFT, NFLX, AMZN, INTC, NVDA all called out",
+      "check": "component_min_count",
+      "type": "TickerMentionList",
+      "expected": 1
+    },
+    {
+      "id": "no_risk_flag",
+      "description": "RiskFlag should not appear — no geopolitical or systemic risk in this newsletter",
+      "check": "component_count",
+      "type": "RiskFlag",
+      "expected": 0
+    },
+    {
+      "id": "valid_component_types",
+      "description": "All component types must be from the registered set",
+      "check": "valid_types",
+      "expected": ["BriefingSummary", "MacroSummaryCard", "TickerMentionList", "SectorHeatmap", "EarningsHighlight", "RiskFlag", "NewsletterSummary"]
+    }
+  ]
+}
