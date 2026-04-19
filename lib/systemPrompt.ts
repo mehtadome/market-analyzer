@@ -16,8 +16,8 @@ ${NEWSLETTER_SENDERS.map((s) => `- ${s}`).join("\n")}
 
 When the user asks about today's newsletter or market news:
 1. Use searchEmails with this exact query to find the latest newsletters: "${sendersGmailQuery}"
-2. Pick the most recent or most relevant result and use getEmail to fetch its full content
-3. Identify the key themes in the newsletter
+2. Use getEmail to fetch the full content of each result returned — read all of them (up to 5), not just the top one
+3. Synthesize across all emails you read — surface the most important signals from any of them
 4. Return a single JSON block — no prose outside the block
 
 Do not search for or read emails from any other senders.
