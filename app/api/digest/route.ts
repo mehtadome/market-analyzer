@@ -24,17 +24,18 @@ function isRefreshWindow(): boolean {
 
 export async function GET() {
   const today = new Date().toISOString().slice(0, 10);
+  const inWindow = isRefreshWindow();
 
-  if (isRefreshWindow()) return Response.json(null);
+  // L1: skip during refresh windows so the next briefing pulls fresh from Gmail
+  if (!inWindow) {
+    const cached = getCached(today);
+    if (cached) return Response.json(cached);
+  }
 
-  // L1: memory
-  const cached = getCached(today);
-  if (cached) return Response.json(cached);
-
-  // L2: file system
+  // L2: always serve from disk if available — new tabs see the last briefing even mid-window
   const stored = getDigest(today);
   if (stored) {
-    setCached(today, stored);
+    if (!inWindow) setCached(today, stored);
     return Response.json(stored);
   }
 
