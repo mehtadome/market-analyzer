@@ -6,7 +6,8 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import { MessageCircle, RefreshCw, Settings, X, ChartCandlestick } from "lucide-react";
 import { ComponentRenderer, DigestRenderer } from "@/components/ComponentRenderer";
-import { parseMood, parseProse, parseComponents } from "@/lib/parseResponse";
+import { TickerMentionChart } from "@/components/ui/TickerMentionChart";
+import { parseMood } from "@/lib/parseResponse";
 import type { TickerSummary } from "@/app/api/tickers/route";
 
 type Mood = "normal" | "alert" | "opportunity" | "danger";
@@ -66,6 +67,7 @@ function DigestLoading() {
 
 export default function Home() {
   const [input, setInput] = useState("");
+  const [activeTab, setActiveTab] = useState<"digest" | "tickers">("digest");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [totalCost, setTotalCost] = useState<number | null>(null);
   const [cachedContent, setCachedContent] = useState<string | null>(null);
@@ -148,11 +150,6 @@ export default function Home() {
 
   const showDigestLoading = isLoading && !briefingText.trim();
 
-  const hasJsonDigest =
-    /```json\n[\s\S]*?\n```/.test(briefingText) &&
-    parseComponents(briefingText).length > 0;
-  const summaryProse = parseProse(briefingText).trim();
-
   return (
     <div
       className={`flex h-screen flex-col transition-colors duration-700 ${moodStyles[mood]}`}
@@ -229,111 +226,111 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Main content */}
-      {!briefingText.trim() && !isLoading ? (
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "1.5rem",
-          }}
-        >
-          {!cacheChecked ? (
-            <span
-              style={{
-                width: "0.5rem",
-                height: "0.5rem",
-                borderRadius: "50%",
-                background: "var(--text-muted)",
-                display: "inline-block",
-                animation: "pulse 1.5s ease-in-out infinite",
-              }}
-              aria-hidden
-            />
-          ) : (
-            <button
-              type="button"
-              onClick={requestBriefing}
-              disabled={isLoading}
-              style={{
-                padding: "0.75rem 2rem",
-                borderRadius: "6px",
-                border: "1px solid var(--dc-border)",
-                background: "var(--text-heading)",
-                color: "var(--background)",
-                fontSize: "1rem",
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "opacity 0.15s",
-              }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "0.88"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
-            >
-              Get today&apos;s briefing
-            </button>
-          )}
-        </div>
-      ) : (
-        <main className="shell__main min-h-0 flex-1 overflow-y-auto">
-          <div style={{ maxWidth: "72rem", margin: "0 auto" }}>
-            {showDigestLoading ? (
-              <DigestLoading />
-            ) : (
-              <div className="space-y-6">
-                {/* Tab row */}
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }} role="tablist" aria-label="Briefing">
-                  <div
-                    role="tab"
-                    aria-selected={true}
-                    tabIndex={0}
-                    id="briefing-tab-digest"
-                    aria-controls="briefing-panel-digest"
-                    className="tab tab--active"
-                  >
-                    Today&apos;s digest
-                  </div>
-                </div>
+      {/* Main content — always rendered so tickers tab is always accessible */}
+      <main className="shell__main min-h-0 flex-1 overflow-y-auto">
+        <div style={{ maxWidth: "72rem", margin: "0 auto" }}>
+          <div className="space-y-6">
+            {/* Tab row */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }} role="tablist" aria-label="Briefing">
+              <div
+                role="tab"
+                aria-selected={activeTab === "digest"}
+                tabIndex={0}
+                id="briefing-tab-digest"
+                aria-controls="briefing-panel-digest"
+                className={`tab${activeTab === "digest" ? " tab--active" : ""}`}
+                onClick={() => setActiveTab("digest")}
+                onKeyDown={(e) => e.key === "Enter" && setActiveTab("digest")}
+              >
+                Today&apos;s digest
+              </div>
+              <div
+                role="tab"
+                aria-selected={activeTab === "tickers"}
+                tabIndex={0}
+                id="briefing-tab-tickers"
+                aria-controls="briefing-panel-tickers"
+                className={`tab${activeTab === "tickers" ? " tab--active" : ""}`}
+                onClick={() => setActiveTab("tickers")}
+                onKeyDown={(e) => e.key === "Enter" && setActiveTab("tickers")}
+              >
+                Today&apos;s tickers
+              </div>
+            </div>
 
-                <div
-                  id="briefing-panel-digest"
-                  role="tabpanel"
-                  aria-labelledby="briefing-tab-digest"
-                  className="space-y-10"
-                >
-                  {hasJsonDigest && summaryProse ? (
-                    <>
-                      <section aria-labelledby="llm-summary-heading">
-                        <h2
-                          id="llm-summary-heading"
-                          className="ds-label"
-                          style={{ marginBottom: "0.75rem" }}
-                        >
-                          LLM summary
-                        </h2>
-                        <div className="card">
-                          <div className="card__body">
-                            <p className="ds-prose" style={{ whiteSpace: "pre-wrap" }}>
-                              {summaryProse}
-                            </p>
-                          </div>
-                        </div>
-                      </section>
-                      <DigestRenderer content={briefingText} componentsOnly />
-                    </>
-                  ) : hasJsonDigest ? (
-                    <DigestRenderer content={briefingText} componentsOnly />
-                  ) : (
-                    <DigestRenderer content={briefingText} />
-                  )}
-                </div>
+            {activeTab === "digest" && (
+              <div
+                id="briefing-panel-digest"
+                role="tabpanel"
+                aria-labelledby="briefing-tab-digest"
+                className="space-y-10"
+              >
+                {showDigestLoading ? (
+                  <DigestLoading />
+                ) : briefingText.trim() ? (
+                  <DigestRenderer content={briefingText} />
+                ) : (
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: "4rem 1.5rem",
+                    }}
+                  >
+                    {!cacheChecked ? (
+                      <span
+                        style={{
+                          width: "0.5rem",
+                          height: "0.5rem",
+                          borderRadius: "50%",
+                          background: "var(--text-muted)",
+                          display: "inline-block",
+                          animation: "pulse 1.5s ease-in-out infinite",
+                        }}
+                        aria-hidden
+                      />
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={requestBriefing}
+                        disabled={isLoading}
+                        style={{
+                          padding: "0.75rem 2rem",
+                          borderRadius: "6px",
+                          border: "1px solid var(--dc-border)",
+                          background: "var(--text-heading)",
+                          color: "var(--background)",
+                          fontSize: "1rem",
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          transition: "opacity 0.15s",
+                        }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "0.88"; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
+                      >
+                        Get today&apos;s briefing
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === "tickers" && (
+              <div
+                id="briefing-panel-tickers"
+                role="tabpanel"
+                aria-labelledby="briefing-tab-tickers"
+                className="space-y-6"
+              >
+                <TickerMentionChart tickers={tickers} />
               </div>
             )}
           </div>
-        </main>
-      )}
+        </div>
+      </main>
 
       {/* Floating chat button */}
       {briefingText.trim() && !drawerOpen && (

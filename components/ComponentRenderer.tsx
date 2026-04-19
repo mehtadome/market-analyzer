@@ -7,9 +7,7 @@ import { EarningsHighlight } from "@/components/ui/EarningsHighlight";
 import { RiskFlag } from "@/components/ui/RiskFlag";
 import { NewsletterSummary } from "@/components/ui/NewsletterSummary";
 import { BriefingSummary } from "@/components/ui/BriefingSummary";
-import { parseMood, parseComponents } from "@/lib/parseResponse";
-
-export { parseMood };
+import { parseComponents } from "@/lib/parseResponse";
 
 interface ComponentSpec {
   type: string;
