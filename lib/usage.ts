@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "fs/promises";
 import path from "path";
 
 // Vercel's filesystem is read-only except /tmp
@@ -13,30 +13,35 @@ interface UsageRecord {
   sessionCount: number;
 }
 
-function read(): UsageRecord {
+// Serializes all writes so concurrent requests can't race on read-modify-write
+let writeQueue: Promise<void> = Promise.resolve();
+
+async function read(): Promise<UsageRecord> {
   try {
-    return JSON.parse(fs.readFileSync(USAGE_FILE, "utf-8"));
+    const raw = await fs.readFile(USAGE_FILE, "utf-8");
+    return JSON.parse(raw);
   } catch {
     return { totalInputTokens: 0, totalOutputTokens: 0, totalCostUsd: 0, sessionCount: 0 };
   }
 }
 
-function write(record: UsageRecord) {
-  fs.writeFileSync(USAGE_FILE, JSON.stringify(record, null, 2));
+async function write(record: UsageRecord): Promise<void> {
+  await fs.writeFile(USAGE_FILE, JSON.stringify(record, null, 2));
 }
 
-export function recordUsage(inputTokens: number, outputTokens: number) {
-  const current = read();
-  const cost = inputTokens * INPUT_COST_PER_TOKEN + outputTokens * OUTPUT_COST_PER_TOKEN;
-
-  write({
-    totalInputTokens: current.totalInputTokens + inputTokens,
-    totalOutputTokens: current.totalOutputTokens + outputTokens,
-    totalCostUsd: current.totalCostUsd + cost,
-    sessionCount: current.sessionCount + 1,
+export function recordUsage(inputTokens: number, outputTokens: number): void {
+  writeQueue = writeQueue.then(async () => {
+    const current = await read();
+    const cost = inputTokens * INPUT_COST_PER_TOKEN + outputTokens * OUTPUT_COST_PER_TOKEN;
+    await write({
+      totalInputTokens: current.totalInputTokens + inputTokens,
+      totalOutputTokens: current.totalOutputTokens + outputTokens,
+      totalCostUsd: current.totalCostUsd + cost,
+      sessionCount: current.sessionCount + 1,
+    });
   });
 }
 
-export function getUsage(): UsageRecord {
+export async function getUsage(): Promise<UsageRecord> {
   return read();
 }

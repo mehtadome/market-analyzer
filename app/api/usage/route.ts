@@ -1,5 +1,5 @@
 import { getUsage } from "@/lib/usage";
 
 export async function GET() {
-  return Response.json(getUsage());
+  return Response.json(await getUsage());
 }
