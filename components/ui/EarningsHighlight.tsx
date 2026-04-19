@@ -4,39 +4,65 @@ interface EarningsHighlightProps {
   detail: string;
 }
 
-const resultStyles = {
-  beat: {
-    bg: "border-emerald-500/30 bg-emerald-500/5",
-    badge: "bg-emerald-500/15 text-emerald-300",
-    label: "Beat",
-  },
-  miss: {
-    bg: "border-red-500/30 bg-red-500/5",
-    badge: "bg-red-500/15 text-red-300",
-    label: "Miss",
-  },
-  inline: {
-    bg: "border-border bg-muted/40",
-    badge: "bg-muted text-muted-foreground",
-    label: "In Line",
-  },
+const resultToImportance: Record<string, string> = {
+  beat:   "low",
+  miss:   "high",
+  inline: "",
+};
+
+const importanceColor: Record<string, string> = {
+  low:  "var(--dc-border-low)",
+  high: "var(--dc-border-high)",
+  "":   "var(--text-muted)",
+};
+
+const resultLabel: Record<string, string> = {
+  beat:   "Beat",
+  miss:   "Miss",
+  inline: "In Line",
 };
 
 export function EarningsHighlight({ company, result, detail }: EarningsHighlightProps) {
-  const styles = resultStyles[result] ?? resultStyles.inline;
+  const importance = resultToImportance[result] ?? "";
+  const label = resultLabel[result] ?? result;
+  const cardClass = importance ? `card card--${importance}` : "card";
 
   return (
-    <div className={`rounded-xl border p-4 shadow-sm ${styles.bg}`}>
-      <div className="mb-1 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-        Earnings
-      </div>
-      <div className="mb-2 flex flex-wrap items-center gap-2">
-        <h3 className="text-lg font-semibold text-foreground">{company}</h3>
-        <span className={`rounded-full px-2 py-0.5 text-sm font-bold ${styles.badge}`}>
-          {styles.label}
+    <div className={cardClass}>
+      <div className="card__header">
+        <div>
+          <div className="ds-label" style={{ marginBottom: 0, color: importanceColor[importance] }}>Earnings</div>
+          <div className="ds-title">{company}</div>
+        </div>
+        <span
+          style={{
+            padding: "0.15rem 0.6rem",
+            borderRadius: "999px",
+            fontSize: "0.8125rem",
+            fontWeight: 700,
+            flexShrink: 0,
+            marginTop: "0.25rem",
+            background:
+              result === "beat"
+                ? "rgba(34,197,94,0.12)"
+                : result === "miss"
+                  ? "rgba(239,68,68,0.12)"
+                  : "var(--btn-bg)",
+            color:
+              result === "beat"
+                ? "var(--dc-positive)"
+                : result === "miss"
+                  ? "var(--dc-border-high)"
+                  : "var(--text-muted)",
+            border: "1px solid currentColor",
+          }}
+        >
+          {label}
         </span>
       </div>
-      <p className="text-base leading-relaxed text-muted-foreground">{detail}</p>
+      <div className="card__body">
+        <p className="ds-prose">{detail}</p>
+      </div>
     </div>
   );
 }

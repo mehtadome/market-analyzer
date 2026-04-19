@@ -1,6 +1,6 @@
 interface Sector {
   name: string;
-  performance: string; // e.g. "+1.2%" or "-0.8%"
+  performance: string;
 }
 
 interface SectorHeatmapProps {
@@ -13,24 +13,41 @@ function isPositive(perf: string) {
 
 export function SectorHeatmap({ sectors }: SectorHeatmapProps) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
-      <div className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-        Sector Performance
+    <div className="card">
+      <div className="card__header">
+        <div className="ds-label" style={{ marginBottom: 0 }}>Sector Performance</div>
       </div>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-        {sectors.map((s) => (
-          <div
-            key={s.name}
-            className={`rounded-lg border p-3 text-center ${
-              isPositive(s.performance)
-                ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-200"
-                : "border-red-500/25 bg-red-500/10 text-red-200"
-            }`}
-          >
-            <div className="text-sm font-medium opacity-90">{s.name}</div>
-            <div className="mt-1 text-base font-bold tabular-nums">{s.performance}</div>
-          </div>
-        ))}
+      <div className="card__body">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {sectors.map((s) => {
+            const pos = isPositive(s.performance);
+            return (
+              <div
+                key={s.name}
+                style={{
+                  padding: "0.6rem 0.75rem",
+                  borderRadius: "6px",
+                  border: `1px solid ${pos ? "rgba(34,197,94,0.35)" : "rgba(239,68,68,0.35)"}`,
+                  background: pos ? "rgba(34,197,94,0.07)" : "rgba(239,68,68,0.07)",
+                  textAlign: "center",
+                }}
+              >
+                <div className="ds-meta">{s.name}</div>
+                <div
+                  style={{
+                    marginTop: "0.2rem",
+                    fontSize: "0.9375rem",
+                    fontWeight: 700,
+                    fontVariantNumeric: "tabular-nums",
+                    color: pos ? "var(--dc-positive)" : "var(--dc-border-high)",
+                  }}
+                >
+                  {s.performance}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

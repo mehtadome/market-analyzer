@@ -1,3 +1,5 @@
+import { renderBold } from "@/lib/renderBold";
+
 interface NewsletterSummaryProps {
   title: string;
   summary: string;
@@ -5,12 +7,16 @@ interface NewsletterSummaryProps {
 
 export function NewsletterSummary({ title, summary }: NewsletterSummaryProps) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
-      <div className="mb-1 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-        Summary
+    <div className="card">
+      <div className="card__header">
+        <div>
+          <div className="ds-label">Summary</div>
+          <div className="ds-title">{title}</div>
+        </div>
       </div>
-      <h3 className="mb-2 text-lg font-semibold text-foreground">{title}</h3>
-      <p className="text-base leading-relaxed text-muted-foreground">{summary}</p>
+      <div className="card__body">
+        <p className="ds-prose">{renderBold(summary)}</p>
+      </div>
     </div>
   );
 }
