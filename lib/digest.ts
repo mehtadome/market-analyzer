@@ -1,7 +1,8 @@
 import fs from "fs";
 import path from "path";
 
-const DIGESTS_DIR = path.join(process.cwd(), "digests");
+// Vercel's filesystem is read-only except /tmp
+const DIGESTS_DIR = process.env.DIGESTS_DIR ?? path.join(process.env.VERCEL ? "/tmp" : process.cwd(), "digests");
 
 export interface DigestRecord {
   date: string;         // YYYY-MM-DD
