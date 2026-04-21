@@ -111,6 +111,8 @@ Components are ordered risk-first by the app regardless of model output order: `
 
 Edit `lib/watchlist.ts` to change the tickers the agent prioritizes. The watchlist is injected into the system prompt at startup — the model flags relevant tickers and gives them priority placement.
 
+To change which newsletter senders are read, edit the `NEWSLETTER_SENDERS` array at the top of `lib/systemPrompt.ts`. Only emails from those addresses are ever fetched.
+
 ---
 
 ## What's Next
