@@ -33,7 +33,7 @@ export async function GET() {
   }
 
   // L2: always serve from disk if available — new tabs see the last briefing even mid-window
-  const stored = getDigest(today);
+  const stored = await getDigest(today);
   if (stored) {
     if (!inWindow) setCached(today, stored);
     return Response.json(stored);

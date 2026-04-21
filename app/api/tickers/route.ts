@@ -22,13 +22,13 @@ export async function GET() {
   cutoff.setDate(cutoff.getDate() - 7);
   const cutoffStr = cutoff.toISOString().slice(0, 10);
 
-  const dates = listDigests().filter((d) => d >= cutoffStr);
+  const dates = (await listDigests()).filter((d) => d >= cutoffStr);
 
   // symbol → aggregated data (direction = most recent since dates is newest-first)
   const map = new Map<string, TickerSummary>();
 
   for (const date of dates) {
-    const digest = getDigest(date);
+    const digest = await getDigest(date);
     if (!digest) continue;
 
     for (const comp of digest.components as ComponentSpec[]) {

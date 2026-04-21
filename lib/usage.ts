@@ -1,7 +1,8 @@
 import fs from "fs";
 import path from "path";
 
-const USAGE_FILE = path.join(process.cwd(), "usage.json");
+// Vercel's filesystem is read-only except /tmp
+const USAGE_FILE = process.env.USAGE_FILE ?? path.join(process.env.VERCEL ? "/tmp" : process.cwd(), "usage.json");
 
 // Haiku pricing (per 1M tokens)
 const INPUT_COST_PER_TOKEN = 0.80 / 1_000_000;

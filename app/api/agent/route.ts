@@ -19,11 +19,11 @@ export async function POST(req: Request) {
     messages: await convertToModelMessages(messages),
     tools,
     stopWhen: stepCountIs(10),
-    onFinish: ({ text, usage }) => {
+    onFinish: async ({ text, usage }) => {
       const inputTokens = usage.inputTokens ?? 0;
       const outputTokens = usage.outputTokens ?? 0;
       recordUsage(inputTokens, outputTokens);
-      const record = saveDigest({
+      const record = await saveDigest({
         mood: parseMood(text),
         prose: parseProse(text),
         components: parseComponents(text),
