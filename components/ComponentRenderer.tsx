@@ -8,13 +8,7 @@ import { EarningsHighlight } from "@/components/ui/EarningsHighlight";
 import { RiskFlag } from "@/components/ui/RiskFlag";
 import { NewsletterSummary } from "@/components/ui/NewsletterSummary";
 import { BriefingSummary } from "@/components/ui/BriefingSummary";
-import { parseComponents } from "@/lib/parseResponse";
-
-interface ComponentSpec {
-  type: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any;
-}
+import { parseComponents, type DigestComponent } from "@/lib/parseResponse";
 
 // Wraps each card — if the model returns a malformed field that throws during render,
 // only that card shows the fallback instead of the entire digest going blank
@@ -44,7 +38,7 @@ interface ComponentRendererProps {
  * and renders the appropriate UI components.
  */
 export function ComponentRenderer({ content }: ComponentRendererProps) {
-  const components = parseComponents(content) as ComponentSpec[];
+  const components = parseComponents(content);
 
   if (components.length === 0) {
     return (
@@ -65,7 +59,7 @@ export function ComponentRenderer({ content }: ComponentRendererProps) {
   );
 }
 
-function renderComponent(spec: ComponentSpec) {
+function renderComponent(spec: DigestComponent) {
   switch (spec.type) {
     case "MacroSummaryCard":
       return <MacroSummaryCard {...spec.data} />;
@@ -88,7 +82,7 @@ function renderComponent(spec: ComponentSpec) {
 
 /** Dashboard layout: full-width macro/risk/summary; tickers + sectors paired; earnings in a row.
  *  components = output of parseComponents() — each element is { type, data } from the model's JSON block. */
-export function DigestLayout({ components }: { components: ComponentSpec[] }) {
+export function DigestLayout({ components }: { components: DigestComponent[] }) {
   const rows: React.ReactNode[] = [];
   let i = 0;
 
@@ -121,7 +115,7 @@ export function DigestLayout({ components }: { components: ComponentSpec[] }) {
     if (spec.type === "EarningsHighlight") {
       // Collect all consecutive EarningsHighlight cards into a group and render them
       // as a single multi-column grid row instead of stacking them full-width
-      const group: ComponentSpec[] = [];
+      const group: DigestComponent[] = [];
       let j = i;
       while (j < components.length && components[j].type === "EarningsHighlight") {
         group.push(components[j]);
@@ -163,7 +157,7 @@ interface DigestRendererProps {
 /** Parses the assistant JSON block and renders a Bloomberg-style digest grid (not chat bubbles). */
 export function DigestRenderer({ content, componentsOnly = false }: DigestRendererProps) {
   const hasJsonFence = /```json\n[\s\S]*?\n```/.test(content);
-  const components = parseComponents(content) as ComponentSpec[];
+  const components = parseComponents(content);
 
   if (!hasJsonFence || components.length === 0) {
     if (componentsOnly) {
