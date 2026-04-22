@@ -103,7 +103,7 @@ export default function Home() {
         const res = await fetch("/api/usage");
         const data = await res.json();
         if (!cancelled) setTotalCost(data.totalCostUsd);
-      } catch { /* ignore */ }
+      } catch (e) { console.error("[usage] fetch failed", e); }
     })();
     return () => { cancelled = true; };
   }, []);
@@ -115,7 +115,7 @@ export default function Home() {
         const res = await fetch("/api/digest");
         const data = await res.json();
         if (!cancelled && data?.rawText) setCachedContent(data.rawText);
-      } catch { /* ignore */ }
+      } catch (e) { console.error("[digest] fetch failed", e); }
       finally { if (!cancelled) setCacheChecked(true); }
     })();
     return () => { cancelled = true; };
@@ -128,7 +128,7 @@ export default function Home() {
         const res = await fetch("/api/tickers");
         const data = await res.json();
         if (!cancelled && Array.isArray(data)) setTickers(data);
-      } catch { /* ignore */ }
+      } catch (e) { console.error("[tickers] fetch failed", e); }
     })();
     return () => { cancelled = true; };
   }, []);
