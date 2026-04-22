@@ -189,7 +189,7 @@ export default function Home() {
           {briefingText.trim() && (
             <button
               type="button"
-              onClick={() => { setCachedContent(null); setMessages([]); }}
+              onClick={() => { console.log("[refresh] clicked — briefingText:", briefingText.length, "agentText:", agentText.length, "cachedContent:", cachedContent?.length ?? null); setCachedContent(null); setMessages([]); }}
               disabled={isLoading}
               title="Refresh briefing"
               className="btn"
@@ -206,7 +206,7 @@ export default function Home() {
               </div>
             </div>
           )}
-          <Link href="/settings" className="btn" style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }} aria-label="Settings">
+          <Link href="/settings" className="btn" style={{ padding: "0.4rem 0.5rem", display: "flex", alignItems: "center" }} aria-label="Settings" onClick={() => console.log("[settings] clicked")}>
             <Settings style={{ width: "1.125rem", height: "1.125rem" }} strokeWidth={1.75} />
           </Link>
         </div>
@@ -225,7 +225,7 @@ export default function Home() {
                   id={`briefing-tab-${tab}`}
                   aria-controls={`briefing-panel-${tab}`}
                   className={`tab${activeTab === tab ? " tab--active" : ""}`}
-                  onClick={() => setActiveTab(tab)}
+                  onClick={() => { console.log("[tab] clicked:", tab); setActiveTab(tab); }}
                   onKeyDown={(e) => e.key === "Enter" && setActiveTab(tab)}
                 >
                   {tab === "digest" ? "Today\u2019s digest" : "Today\u2019s tickers"}
@@ -238,7 +238,7 @@ export default function Home() {
                 isLoading={isLoading}
                 briefingText={briefingText}
                 cacheChecked={cacheChecked}
-                onRequestBriefing={() => { if (!isLoading) sendMessage({ text: BRIEFING_PROMPT }); }}
+                onRequestBriefing={() => { console.log("[briefing] requested — isLoading:", isLoading, "cacheChecked:", cacheChecked); if (!isLoading) sendMessage({ text: BRIEFING_PROMPT }); }}
               />
             </div>
 
