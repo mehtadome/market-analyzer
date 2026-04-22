@@ -13,6 +13,11 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: anthropic(MODEL_ID),
+    // Cache the system prompt on Anthropic's servers — subsequent requests within 5 min
+    // reuse the cached transformer state instead of re-processing ~1500 tokens from scratch
+    providerOptions: {
+      anthropic: { cacheControl: { type: "ephemeral" } },
+    },
     system: systemPrompt,
     messages: await convertToModelMessages(messages),
     tools,
