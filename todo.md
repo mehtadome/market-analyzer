@@ -8,4 +8,6 @@
 
 - **Usage tracking is broken in production** — `usage.json` is written to `/tmp` on Vercel, which is wiped per-invocation. Every request starts from zero spend. Fix: store usage in Vercel KV with `kv.incrby` for atomic increments (also fixes the read-modify-write race where two concurrent requests can silently overwrite each other's counts).
 
+- **Settings navigation clears digest** — navigating to `/settings` and back remounts the page, resetting all React state. On Vercel, the return `/api/digest` call hits a fresh Lambda with an empty `/tmp`, so the cached briefing is gone and DigestPanel shows "Get today's briefing" as if no briefing exists. Fixed once filesystem cache is replaced with Vercel KV.
+
 - **Add retry logic for Gmail and Claude API calls** — transient timeouts are more common in production. Neither `lib/gmail.ts` nor `app/api/agent/route.ts` has any retry or backoff, so one flaky network call surfaces as a hard failure to the user.
