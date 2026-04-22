@@ -1,5 +1,6 @@
 "use client";
 
+import { Component, type ReactNode } from "react";
 import { MacroSummaryCard } from "@/components/ui/MacroSummaryCard";
 import { TickerMentionList } from "@/components/ui/TickerMentionList";
 import { SectorHeatmap } from "@/components/ui/SectorHeatmap";
@@ -7,12 +8,25 @@ import { EarningsHighlight } from "@/components/ui/EarningsHighlight";
 import { RiskFlag } from "@/components/ui/RiskFlag";
 import { NewsletterSummary } from "@/components/ui/NewsletterSummary";
 import { BriefingSummary } from "@/components/ui/BriefingSummary";
-import { parseComponents } from "@/lib/parseResponse";
+import { parseComponents, type DigestComponent } from "@/lib/parseResponse";
 
-interface ComponentSpec {
-  type: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any;
+// Wraps each card — if the model returns a malformed field that throws during render,
+// only that card shows the fallback instead of the entire digest going blank
+class DigestErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null };
+  static getDerivedStateFromError(error: Error) { return { error }; }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="card" style={{ padding: "1rem", borderColor: "var(--dc-border-high)" }}>
+          <p className="ds-meta" style={{ color: "var(--dc-border-high)" }}>
+            Failed to render component — malformed model output.
+          </p>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 interface ComponentRendererProps {
@@ -24,7 +38,7 @@ interface ComponentRendererProps {
  * and renders the appropriate UI components.
  */
 export function ComponentRenderer({ content }: ComponentRendererProps) {
-  const components = parseComponents(content) as ComponentSpec[];
+  const components = parseComponents(content);
 
   if (components.length === 0) {
     return (
@@ -37,13 +51,15 @@ export function ComponentRenderer({ content }: ComponentRendererProps) {
   return (
     <div className="space-y-3">
       {components.map((spec, i) => (
-        <div key={i}>{renderComponent(spec)}</div>
+        <DigestErrorBoundary key={i}>
+          <div>{renderComponent(spec)}</div>
+        </DigestErrorBoundary>
       ))}
     </div>
   );
 }
 
-function renderComponent(spec: ComponentSpec) {
+function renderComponent(spec: DigestComponent) {
   switch (spec.type) {
     case "MacroSummaryCard":
       return <MacroSummaryCard {...spec.data} />;
@@ -66,7 +82,7 @@ function renderComponent(spec: ComponentSpec) {
 
 /** Dashboard layout: full-width macro/risk/summary; tickers + sectors paired; earnings in a row.
  *  components = output of parseComponents() — each element is { type, data } from the model's JSON block. */
-export function DigestLayout({ components }: { components: ComponentSpec[] }) {
+export function DigestLayout({ components }: { components: DigestComponent[] }) {
   const rows: React.ReactNode[] = [];
   let i = 0;
 
@@ -88,8 +104,8 @@ export function DigestLayout({ components }: { components: ComponentSpec[] }) {
           key={`pair-${i}`}
           className="grid gap-4 lg:grid-cols-2 lg:items-start"
         >
-          <div className="min-w-0">{renderComponent(ticker)}</div>
-          <div className="min-w-0">{renderComponent(sector)}</div>
+          <div className="min-w-0"><DigestErrorBoundary>{renderComponent(ticker)}</DigestErrorBoundary></div>
+          <div className="min-w-0"><DigestErrorBoundary>{renderComponent(sector)}</DigestErrorBoundary></div>
         </div>,
       );
       i += 2;
@@ -99,7 +115,7 @@ export function DigestLayout({ components }: { components: ComponentSpec[] }) {
     if (spec.type === "EarningsHighlight") {
       // Collect all consecutive EarningsHighlight cards into a group and render them
       // as a single multi-column grid row instead of stacking them full-width
-      const group: ComponentSpec[] = [];
+      const group: DigestComponent[] = [];
       let j = i;
       while (j < components.length && components[j].type === "EarningsHighlight") {
         group.push(components[j]);
@@ -112,7 +128,7 @@ export function DigestLayout({ components }: { components: ComponentSpec[] }) {
         >
           {group.map((s, k) => (
             <div key={k} className="min-w-0">
-              {renderComponent(s)}
+              <DigestErrorBoundary>{renderComponent(s)}</DigestErrorBoundary>
             </div>
           ))}
         </div>,
@@ -123,7 +139,7 @@ export function DigestLayout({ components }: { components: ComponentSpec[] }) {
 
     rows.push(
       <div key={`full-${i}`} className="w-full min-w-0">
-        {renderComponent(spec)}
+        <DigestErrorBoundary>{renderComponent(spec)}</DigestErrorBoundary>
       </div>,
     );
     i++;
@@ -141,7 +157,7 @@ interface DigestRendererProps {
 /** Parses the assistant JSON block and renders a Bloomberg-style digest grid (not chat bubbles). */
 export function DigestRenderer({ content, componentsOnly = false }: DigestRendererProps) {
   const hasJsonFence = /```json\n[\s\S]*?\n```/.test(content);
-  const components = parseComponents(content) as ComponentSpec[];
+  const components = parseComponents(content);
 
   if (!hasJsonFence || components.length === 0) {
     if (componentsOnly) {
