@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "fs/promises";
 import path from "path";
 
 // Vercel's filesystem is read-only except /tmp
@@ -18,8 +18,8 @@ export interface DigestRecord {
   };
 }
 
-function ensureDir() {
-  if (!fs.existsSync(DIGESTS_DIR)) fs.mkdirSync(DIGESTS_DIR);
+async function ensureDir() {
+  await fs.mkdir(DIGESTS_DIR, { recursive: true });
 }
 
 interface TickerSpec {
@@ -37,11 +37,9 @@ function mergeTickerMentions(existing: ComponentSpec[], incoming: ComponentSpec[
   const existingTickers = (existing.find((c) => c.type === "TickerMentionList")?.data.tickers ?? []) as TickerSpec[];
   const incomingTickers = (incoming.find((c) => c.type === "TickerMentionList")?.data.tickers ?? []) as TickerSpec[];
 
-  // Build map from existing, then overwrite with incoming (newer context wins)
   const merged = new Map<string, TickerSpec>(existingTickers.map((t) => [t.symbol, t]));
   for (const t of incomingTickers) merged.set(t.symbol, t);
 
-  // Replace TickerMentionList in incoming components with merged result
   return incoming.map((c) =>
     c.type === "TickerMentionList"
       ? { ...c, data: { ...c.data, tickers: Array.from(merged.values()) } }
@@ -49,36 +47,36 @@ function mergeTickerMentions(existing: ComponentSpec[], incoming: ComponentSpec[
   );
 }
 
-export function saveDigest(record: Omit<DigestRecord, "date" | "timestamp">): DigestRecord {
-  ensureDir();
+export async function saveDigest(record: Omit<DigestRecord, "date" | "timestamp">): Promise<DigestRecord> {
+  await ensureDir();
   const now = new Date();
   const date = now.toISOString().slice(0, 10);
   const timestamp = now.toISOString();
   const filepath = path.join(DIGESTS_DIR, `${date}.json`);
 
-  const existing = getDigest(date);
+  const existing = await getDigest(date);
   const components = existing
     ? mergeTickerMentions(existing.components as ComponentSpec[], record.components as ComponentSpec[])
     : record.components;
 
   const full: DigestRecord = { date, timestamp, ...record, components };
-  fs.writeFileSync(filepath, JSON.stringify(full, null, 2));
+  await fs.writeFile(filepath, JSON.stringify(full, null, 2));
   return full;
 }
 
-export function getDigest(date: string): DigestRecord | null {
+export async function getDigest(date: string): Promise<DigestRecord | null> {
   const filepath = path.join(DIGESTS_DIR, `${date}.json`);
   try {
-    return JSON.parse(fs.readFileSync(filepath, "utf-8"));
+    return JSON.parse(await fs.readFile(filepath, "utf-8"));
   } catch {
     return null;
   }
 }
 
-export function listDigests(): string[] {
-  ensureDir();
-  return fs
-    .readdirSync(DIGESTS_DIR)
+export async function listDigests(): Promise<string[]> {
+  await ensureDir();
+  const files = await fs.readdir(DIGESTS_DIR);
+  return files
     .filter((f) => f.endsWith(".json"))
     .map((f) => f.replace(".json", ""))
     .sort()
