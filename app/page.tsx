@@ -74,7 +74,7 @@ export default function Home() {
     setTimeout(() => setToast(null), 6000);
   }
 
-  const { messages, sendMessage, status } = useChat({
+  const { messages, sendMessage, setMessages, status } = useChat({
     transport,
     onError: (error) => {
       const msg = error?.message ?? "";
@@ -189,7 +189,7 @@ export default function Home() {
           {briefingText.trim() && (
             <button
               type="button"
-              onClick={() => setCachedContent(null)}
+              onClick={() => { setCachedContent(null); setMessages([]); }}
               disabled={isLoading}
               title="Refresh briefing"
               className="btn"
