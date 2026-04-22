@@ -46,6 +46,7 @@ export async function searchEmails(
 
   for (const stub of stubs) {
     if (!stub.id) continue;
+    // format: "metadata" skips the body entirely — cheaper than "full", enough to identify the email
     const msg = await gmail.users.messages.get({
       userId: "me",
       id: stub.id,
@@ -86,6 +87,9 @@ export async function getEmail(messageId: string): Promise<EmailContent> {
 
 // --- helpers ---
 
+// Converts the Gmail headers array into a lowercase-keyed map for easy lookup.
+// Gmail returns headers as [{ name: "Subject", value: "Markets Today" }, { name: "From", value: "..." }]
+// rather than a plain object because headers can repeat (e.g. multiple "Received" entries).
 function indexHeaders(
   headers: gmail_v1.Schema$MessagePartHeader[]
 ): Record<string, string> {
@@ -94,6 +98,7 @@ function indexHeaders(
   );
 }
 
+// Recursively walks a MIME message tree to find and decode the plain-text part
 function extractBody(payload: gmail_v1.Schema$MessagePart): string {
   const mime = payload.mimeType ?? "";
 

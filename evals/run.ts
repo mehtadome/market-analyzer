@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { config } from "dotenv";
+// Loads .env.local so ANTHROPIC_API_KEY is available outside the Next.js runtime
 config({ path: path.join(__dirname, "../.env.local") });
 import { generateText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
@@ -30,6 +31,7 @@ interface ComponentSpec {
   data: Record<string, unknown>;
 }
 
+// Traverses a dot-notation path (e.g. "data.severity") on an object and returns the value
 function getNestedField(obj: Record<string, unknown>, fieldPath: string): unknown {
   return fieldPath.split(".").reduce((acc: unknown, key) => {
     if (acc && typeof acc === "object") return (acc as Record<string, unknown>)[key];
@@ -37,6 +39,12 @@ function getNestedField(obj: Record<string, unknown>, fieldPath: string): unknow
   }, obj);
 }
 
+// Runs a single assertion against the model's parsed output. Five check types:
+//   mood_one_of        — is the mood in a list of allowed values?
+//   component_count    — does exactly N of a given type exist?
+//   component_min_count — does at least N exist?
+//   component_field    — does the first matching component have a specific field value?
+//   valid_types        — are all component types from the registered set?
 function evaluate(assertion: Assertion, mood: string, components: ComponentSpec[]): { pass: boolean; reason: string } {
   switch (assertion.check) {
     case "mood_one_of": {
@@ -71,6 +79,8 @@ function evaluate(assertion: Assertion, mood: string, components: ComponentSpec[
   }
 }
 
+// Sends the fixture text to Claude as a fake newsletter message, parses the response,
+// then runs every rubric assertion and prints pass/fail results
 async function runFixture(fixtureName: string, rubric: Rubric) {
   const fixturePath = path.join(FIXTURES_DIR, fixtureName);
   const newsletterText = fs.readFileSync(fixturePath, "utf-8");
@@ -80,6 +90,7 @@ async function runFixture(fixtureName: string, rubric: Rubric) {
   console.log(`Scenario: ${rubric.description}`);
   console.log(`${"─".repeat(60)}`);
 
+  // generateText (not streamText) — no streaming needed in evals, just the final response
   const { text } = await generateText({
     model: anthropic("claude-haiku-4-5-20251001"),
     system: systemPrompt,
@@ -111,6 +122,7 @@ async function runFixture(fixtureName: string, rubric: Rubric) {
   return { passed, failed };
 }
 
+// Entry point — reads all rubric files, runs each fixture, exits with code 1 if any assertion failed
 async function main() {
   const rubricFiles = fs.readdirSync(RUBRICS_DIR).filter((f) => f.endsWith(".json"));
 

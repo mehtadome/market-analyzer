@@ -17,6 +17,9 @@ interface ComponentSpec {
   data: { tickers?: TickerSpec[] };
 }
 
+// Calls listDigests() to get all digest dates, filters out older than 7 days,
+// then iterates over each digest, extracting TickerMentionList components and
+// aggregating symbol mentions across all digests.
 export async function GET() {
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 7);

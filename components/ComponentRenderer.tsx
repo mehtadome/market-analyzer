@@ -64,7 +64,8 @@ function renderComponent(spec: ComponentSpec) {
   }
 }
 
-/** Dashboard layout: full-width macro/risk/summary; tickers + sectors paired; earnings in a row. */
+/** Dashboard layout: full-width macro/risk/summary; tickers + sectors paired; earnings in a row.
+ *  components = output of parseComponents() — each element is { type, data } from the model's JSON block. */
 export function DigestLayout({ components }: { components: ComponentSpec[] }) {
   const rows: React.ReactNode[] = [];
   let i = 0;
@@ -73,6 +74,7 @@ export function DigestLayout({ components }: { components: ComponentSpec[] }) {
     const spec = components[i];
     const next = components[i + 1];
 
+    // Both are compact cards — pair them side-by-side to avoid wasted full-width whitespace
     if (
       (spec.type === "TickerMentionList" && next?.type === "SectorHeatmap") ||
       (spec.type === "SectorHeatmap" && next?.type === "TickerMentionList")
@@ -95,6 +97,8 @@ export function DigestLayout({ components }: { components: ComponentSpec[] }) {
     }
 
     if (spec.type === "EarningsHighlight") {
+      // Collect all consecutive EarningsHighlight cards into a group and render them
+      // as a single multi-column grid row instead of stacking them full-width
       const group: ComponentSpec[] = [];
       let j = i;
       while (j < components.length && components[j].type === "EarningsHighlight") {

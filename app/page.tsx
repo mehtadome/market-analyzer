@@ -66,13 +66,13 @@ function DigestLoading() {
 }
 
 export default function Home() {
-  const [input, setInput] = useState("");
-  const [activeTab, setActiveTab] = useState<"digest" | "tickers">("digest");
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [totalCost, setTotalCost] = useState<number | null>(null);
-  const [cachedContent, setCachedContent] = useState<string | null>(null);
-  const [cacheChecked, setCacheChecked] = useState(false);
-  const [tickers, setTickers] = useState<TickerSummary[]>([]);
+  const [input, setInput] = useState("");                                    // controlled chat input value
+  const [activeTab, setActiveTab] = useState<"digest" | "tickers">("digest"); // which tab is shown in the drawer
+  const [drawerOpen, setDrawerOpen] = useState(false);                        // whether the side drawer is open
+  const [totalCost, setTotalCost] = useState<number | null>(null);            // cumulative API spend from /api/usage
+  const [cachedContent, setCachedContent] = useState<string | null>(null);   // today's digest rawText from L2 cache
+  const [cacheChecked, setCacheChecked] = useState(false);                   // whether the cache check on mount has completed
+  const [tickers, setTickers] = useState<TickerSummary[]>([]);               // 7-day ticker mention data for the chart
   const { messages, sendMessage, status } = useChat({ transport });
   const isLoading = status === "streaming" || status === "submitted";
 
@@ -82,6 +82,9 @@ export default function Home() {
   const mood: Mood = parseMood(briefingText);
 
   useEffect(() => {
+    // cancelled guards against stale async results — if the component unmounts before
+    // the fetch resolves, the cleanup sets cancelled=true and the setState is discarded.
+    // Async operations don't respect React's component lifecycle, so this must be done manually.
     let cancelled = false;
     void (async () => {
       try {
