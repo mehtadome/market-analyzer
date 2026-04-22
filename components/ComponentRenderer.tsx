@@ -1,5 +1,6 @@
 "use client";
 
+import { Component, type ReactNode } from "react";
 import { MacroSummaryCard } from "@/components/ui/MacroSummaryCard";
 import { TickerMentionList } from "@/components/ui/TickerMentionList";
 import { SectorHeatmap } from "@/components/ui/SectorHeatmap";
@@ -13,6 +14,25 @@ interface ComponentSpec {
   type: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any;
+}
+
+// Wraps each card — if the model returns a malformed field that throws during render,
+// only that card shows the fallback instead of the entire digest going blank
+class DigestErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null };
+  static getDerivedStateFromError(error: Error) { return { error }; }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="card" style={{ padding: "1rem", borderColor: "var(--dc-border-high)" }}>
+          <p className="ds-meta" style={{ color: "var(--dc-border-high)" }}>
+            Failed to render component — malformed model output.
+          </p>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 interface ComponentRendererProps {
@@ -37,7 +57,9 @@ export function ComponentRenderer({ content }: ComponentRendererProps) {
   return (
     <div className="space-y-3">
       {components.map((spec, i) => (
-        <div key={i}>{renderComponent(spec)}</div>
+        <DigestErrorBoundary key={i}>
+          <div>{renderComponent(spec)}</div>
+        </DigestErrorBoundary>
       ))}
     </div>
   );
@@ -88,8 +110,8 @@ export function DigestLayout({ components }: { components: ComponentSpec[] }) {
           key={`pair-${i}`}
           className="grid gap-4 lg:grid-cols-2 lg:items-start"
         >
-          <div className="min-w-0">{renderComponent(ticker)}</div>
-          <div className="min-w-0">{renderComponent(sector)}</div>
+          <div className="min-w-0"><DigestErrorBoundary>{renderComponent(ticker)}</DigestErrorBoundary></div>
+          <div className="min-w-0"><DigestErrorBoundary>{renderComponent(sector)}</DigestErrorBoundary></div>
         </div>,
       );
       i += 2;
@@ -112,7 +134,7 @@ export function DigestLayout({ components }: { components: ComponentSpec[] }) {
         >
           {group.map((s, k) => (
             <div key={k} className="min-w-0">
-              {renderComponent(s)}
+              <DigestErrorBoundary>{renderComponent(s)}</DigestErrorBoundary>
             </div>
           ))}
         </div>,
@@ -123,7 +145,7 @@ export function DigestLayout({ components }: { components: ComponentSpec[] }) {
 
     rows.push(
       <div key={`full-${i}`} className="w-full min-w-0">
-        {renderComponent(spec)}
+        <DigestErrorBoundary>{renderComponent(spec)}</DigestErrorBoundary>
       </div>,
     );
     i++;
