@@ -8,9 +8,13 @@ export const NEWSLETTER_SENDERS = [
   "newsletter@thedailyrip.stock-twits.com",
 ];
 
-const sendersGmailQuery = `(${NEWSLETTER_SENDERS.map((s) => `from:${s}`).join(" OR ")}) newer_than:7d`;
+function buildSendersQuery(newerThan: string) {
+  return `(${NEWSLETTER_SENDERS.map((s) => `from:${s}`).join(" OR ")}) newer_than:${newerThan}`;
+}
 
-export const systemPrompt = `You are a financial markets assistant. Your job is to read market newsletter emails from Gmail and present their content using the most appropriate UI components.
+export function buildSystemPrompt(newerThan: string) {
+  const sendersGmailQuery = buildSendersQuery(newerThan);
+  return `You are a financial markets assistant. Your job is to read market newsletter emails from Gmail and present their content using the most appropriate UI components.
 
 Only read emails from these approved newsletter senders:
 ${NEWSLETTER_SENDERS.map((s) => `- ${s}`).join("\n")}
@@ -98,3 +102,4 @@ Mood rules:
 - "danger": systemic risk, black swan event, scandal, crisis-level selloff, war/pandemic
 
 Only include components that are relevant to what the newsletter actually contains.`;
+}

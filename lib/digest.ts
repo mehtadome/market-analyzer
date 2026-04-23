@@ -1,8 +1,4 @@
-import fs from "fs/promises";
-import path from "path";
-
-// Vercel's filesystem is read-only except /tmp
-const DIGESTS_DIR = process.env.DIGESTS_DIR ?? path.join(process.env.VERCEL ? "/tmp" : process.cwd(), "digests");
+import { redis } from "@/lib/redis";
 
 export interface DigestRecord {
   date: string;         // YYYY-MM-DD
@@ -18,9 +14,9 @@ export interface DigestRecord {
   };
 }
 
-// Creates the digests directory if it doesn't exist yet
-async function ensureDir() {
-  await fs.mkdir(DIGESTS_DIR, { recursive: true });
+// Redis key format: digest:YYYY-MM-DD
+function digestKey(date: string) {
+  return `digest:${date}`;
 }
 
 interface TickerSpec {
@@ -50,13 +46,11 @@ function mergeTickerMentions(existing: ComponentSpec[], incoming: ComponentSpec[
   );
 }
 
-// Writes today's digest to disk. If a digest already exists for today, merges ticker mentions rather than overwriting.
+// Writes today's digest to Redis. If a digest already exists for today, merges ticker mentions rather than overwriting.
 export async function saveDigest(record: Omit<DigestRecord, "date" | "timestamp">): Promise<DigestRecord> {
-  await ensureDir();
   const now = new Date();
   const date = now.toISOString().slice(0, 10);
   const timestamp = now.toISOString();
-  const filepath = path.join(DIGESTS_DIR, `${date}.json`);
 
   const existing = await getDigest(date);
   const components = existing
@@ -64,27 +58,34 @@ export async function saveDigest(record: Omit<DigestRecord, "date" | "timestamp"
     : record.components;
 
   const full: DigestRecord = { date, timestamp, ...record, components };
-  await fs.writeFile(filepath, JSON.stringify(full, null, 2));
+  // 30-day TTL — keeps a full month of digests, then expires automatically
+  await redis.set(digestKey(date), JSON.stringify(full), "EX", 60 * 60 * 24 * 30);
   return full;
 }
 
-// Reads a digest by date (YYYY-MM-DD). Returns null if no file exists for that date.
+// Reads a digest by date (YYYY-MM-DD). Returns null if not found.
 export async function getDigest(date: string): Promise<DigestRecord | null> {
-  const filepath = path.join(DIGESTS_DIR, `${date}.json`);
+  const raw = await redis.get(digestKey(date));
+  if (!raw) return null;
   try {
-    return JSON.parse(await fs.readFile(filepath, "utf-8"));
+    return JSON.parse(raw);
   } catch {
     return null;
   }
 }
 
+// Returns the most recently saved digest, or null if none exist.
+export async function getLatestDigest(): Promise<DigestRecord | null> {
+  const dates = await listDigests();
+  if (dates.length === 0) return null;
+  return getDigest(dates[0]);
+}
+
 // Returns all digest dates as YYYY-MM-DD strings, sorted newest-first.
 export async function listDigests(): Promise<string[]> {
-  await ensureDir();
-  const files = await fs.readdir(DIGESTS_DIR);
-  return files
-    .filter((f) => f.endsWith(".json"))
-    .map((f) => f.replace(".json", ""))
+  const keys = await redis.keys("digest:*");
+  return keys
+    .map((k) => k.replace("digest:", ""))
     .sort()
     .reverse();
 }

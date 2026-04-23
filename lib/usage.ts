@@ -1,42 +1,37 @@
-import fs from "fs";
-import path from "path";
-
-// Vercel's filesystem is read-only except /tmp
-const USAGE_FILE = process.env.USAGE_FILE ?? path.join(process.env.VERCEL ? "/tmp" : process.cwd(), "usage.json");
-
+import { redis } from "@/lib/redis";
 import { INPUT_COST_PER_TOKEN, OUTPUT_COST_PER_TOKEN } from "@/lib/config";
 
-interface UsageRecord {
+// All values stored as integers scaled by 1e9 to avoid float precision issues with INCRBYFLOAT.
+const SCALE = 1_000_000_000;
+
+// Atomically increments usage counters — safe under concurrent requests.
+// INCR/INCRBY on Redis is atomic, eliminating the read-modify-write race in the old file-based approach.
+export async function recordUsage(inputTokens: number, outputTokens: number): Promise<void> {
+  const cost = inputTokens * INPUT_COST_PER_TOKEN + outputTokens * OUTPUT_COST_PER_TOKEN;
+  await Promise.all([
+    redis.incrby("usage:inputTokens", inputTokens),
+    redis.incrby("usage:outputTokens", outputTokens),
+    redis.incrby("usage:costUsd", Math.round(cost * SCALE)),
+    redis.incr("usage:sessionCount"),
+  ]);
+}
+
+export async function getUsage(): Promise<{
   totalInputTokens: number;
   totalOutputTokens: number;
   totalCostUsd: number;
   sessionCount: number;
-}
-
-function read(): UsageRecord {
-  try {
-    return JSON.parse(fs.readFileSync(USAGE_FILE, "utf-8"));
-  } catch {
-    return { totalInputTokens: 0, totalOutputTokens: 0, totalCostUsd: 0, sessionCount: 0 };
-  }
-}
-
-function write(record: UsageRecord) {
-  fs.writeFileSync(USAGE_FILE, JSON.stringify(record, null, 2));
-}
-
-export function recordUsage(inputTokens: number, outputTokens: number) {
-  const current = read();
-  const cost = inputTokens * INPUT_COST_PER_TOKEN + outputTokens * OUTPUT_COST_PER_TOKEN;
-
-  write({
-    totalInputTokens: current.totalInputTokens + inputTokens,
-    totalOutputTokens: current.totalOutputTokens + outputTokens,
-    totalCostUsd: current.totalCostUsd + cost,
-    sessionCount: current.sessionCount + 1,
-  });
-}
-
-export function getUsage(): UsageRecord {
-  return read();
+}> {
+  const [input, output, cost, sessions] = await Promise.all([
+    redis.get("usage:inputTokens"),
+    redis.get("usage:outputTokens"),
+    redis.get("usage:costUsd"),
+    redis.get("usage:sessionCount"),
+  ]);
+  return {
+    totalInputTokens: parseInt(input ?? "0", 10),
+    totalOutputTokens: parseInt(output ?? "0", 10),
+    totalCostUsd: parseInt(cost ?? "0", 10) / SCALE,
+    sessionCount: parseInt(sessions ?? "0", 10),
+  };
 }
