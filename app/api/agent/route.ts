@@ -1,12 +1,13 @@
 import { streamText, convertToModelMessages, stepCountIs, UIMessage } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { tools } from "@/lib/tools";
-import { systemPrompt } from "@/lib/systemPrompt";
 import { recordUsage } from "@/lib/usage";
 import { saveDigest } from "@/lib/digest";
 import { setCached } from "@/lib/cache";
 import { parseMood, parseComponents, parseProse } from "@/lib/parseResponse";
 import { MODEL_ID, INPUT_COST_PER_TOKEN, OUTPUT_COST_PER_TOKEN } from "@/lib/config";
+import { getLatestDigest } from "@/lib/digest";
+import { buildSystemPrompt } from "@/lib/systemPrompt";
 
 // Best-effort single-stream guard. Works within a warm Lambda instance; won't block
 // concurrent requests hitting separate Vercel invocations — a Redis SET NX mutex would fix that.
@@ -22,6 +23,14 @@ export async function POST(req: Request) {
   isRunning = true;
 
   const { messages }: { messages: UIMessage[] } = await req.json();
+
+  // Compute how far back to search Gmail — only fetch emails newer than the last stored digest.
+  // Falls back to 30d on first run when no digest exists yet.
+  const latest = await getLatestDigest();
+  const newerThan = latest
+    ? `${Math.ceil((Date.now() - new Date(latest.timestamp).getTime()) / (1000 * 60 * 60))}h`
+    : "30d";
+  const systemPrompt = buildSystemPrompt(newerThan);
 
   const result = streamText({
     model: anthropic(MODEL_ID),

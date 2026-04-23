@@ -5,7 +5,8 @@ import { config } from "dotenv";
 config({ path: path.join(__dirname, "../.env.local") });
 import { generateText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
-import { systemPrompt } from "@/lib/systemPrompt";
+import { buildSystemPrompt } from "@/lib/systemPrompt";
+const systemPrompt = buildSystemPrompt("30d");
 import { parseMood, parseComponents } from "@/lib/parseResponse";
 
 const FIXTURES_DIR = path.join(__dirname, "fixtures");
