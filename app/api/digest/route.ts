@@ -1,5 +1,6 @@
 import { getCached, setCached } from "@/lib/cache";
 import { getDigest } from "@/lib/digest";
+import { REFRESH_WINDOWS } from "@/lib/config";
 
 // Returns the current hour (0-23) in PT, accounting for PST/PDT automatically.
 function ptHour(): number {
@@ -15,11 +16,9 @@ function ptHour(): number {
 
 // During these windows newsletters are likely to have updated — bypass cache
 // so the next briefing request fetches fresh content.
-//   2:00am – 7:00am PT  (pre-market / overnight newsletters)
-//   1:00pm – 4:00pm PT  (midday / afternoon editions)
 function isRefreshWindow(): boolean {
   const h = ptHour();
-  return (h >= 2 && h < 7) || (h >= 13 && h < 16);
+  return REFRESH_WINDOWS.some((w) => h >= w.startHour && h < w.endHour);
 }
 
 export async function GET() {
