@@ -99,7 +99,6 @@ export default function SettingsPage() {
   }, []);
 
   const contextLabel = getContextLabel();
-  const refreshWindowsLabel = REFRESH_WINDOWS.map((w) => w.label).join(", ");
 
   return (
     <div className="shell" style={{ background: "var(--background)" }}>
@@ -146,10 +145,33 @@ export default function SettingsPage() {
               label="Last briefing"
               value={lastDigestTimestamp ? formatDigestTimestamp(lastDigestTimestamp) : "No digest yet"}
             />
-            <ReadOnlyField
-              label="Refresh windows (PT)"
-              value={refreshWindowsLabel}
-            />
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.375rem" }}>
+              <label
+                className="ds-meta"
+                style={{ fontWeight: 500, color: "var(--text-muted)", textTransform: "uppercase", fontSize: "0.7rem", letterSpacing: "0.06em" }}
+              >
+                Refresh windows (PT)
+              </label>
+              {REFRESH_WINDOWS.map((w) => (
+                <input
+                  key={w.label}
+                  readOnly
+                  disabled
+                  value={w.label}
+                  style={{
+                    padding: "0.625rem 0.75rem",
+                    borderRadius: "6px",
+                    border: "1px solid var(--border)",
+                    background: "var(--btn-bg)",
+                    color: "var(--text)",
+                    fontSize: "0.9rem",
+                    width: "100%",
+                    cursor: "default",
+                    opacity: 0.8,
+                  }}
+                />
+              ))}
+            </div>
             <ReadOnlyField
               label={`Context window (${CONTEXT_WINDOW_DAYS}-day calendar month)`}
               value={contextLabel}
