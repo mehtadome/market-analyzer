@@ -25,11 +25,13 @@ export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json();
 
   // Compute how far back to search Gmail — only fetch emails newer than the last stored digest.
-  // Falls back to 30d on first run when no digest exists yet.
+  // Falls back to start of current calendar month on first run so the window is always month-aligned.
   const latest = await getLatestDigest();
+  const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  const daysIntoMonth = Math.ceil((Date.now() - monthStart.getTime()) / (1000 * 60 * 60 * 24));
   const newerThan = latest
     ? `${Math.ceil((Date.now() - new Date(latest.timestamp).getTime()) / (1000 * 60 * 60))}h`
-    : "30d";
+    : `${daysIntoMonth}d`;
   const systemPrompt = buildSystemPrompt(newerThan);
 
   const result = streamText({
