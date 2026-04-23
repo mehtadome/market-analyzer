@@ -1,12 +1,7 @@
 import { WATCHLIST } from "@/lib/watchlist";
+import { NEWSLETTER_SENDERS } from "@/lib/config";
 
-export const NEWSLETTER_SENDERS = [
-  "noreply@news.bloomberg.com",
-  "crewreplies@morningbrew.com",
-  "newsletter@stocktwits.com",
-  "account@seekingalpha.com",
-  "newsletter@thedailyrip.stock-twits.com",
-];
+export { NEWSLETTER_SENDERS };
 
 function buildSendersQuery(newerThan: string) {
   return `(${NEWSLETTER_SENDERS.map((s) => `from:${s}`).join(" OR ")}) newer_than:${newerThan}`;
