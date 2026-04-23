@@ -8,6 +8,7 @@ import { EarningsHighlight } from "@/components/ui/EarningsHighlight";
 import { RiskFlag } from "@/components/ui/RiskFlag";
 import { NewsletterSummary } from "@/components/ui/NewsletterSummary";
 import { BriefingSummary } from "@/components/ui/BriefingSummary";
+import { DynamicChart } from "@/components/ui/DynamicChart";
 import { parseComponents, type DigestComponent } from "@/lib/parseResponse";
 
 // Wraps each card — if the model returns a malformed field that throws during render,
@@ -75,6 +76,8 @@ function renderComponent(spec: DigestComponent) {
       return <NewsletterSummary {...spec.data} />;
     case "BriefingSummary":
       return <BriefingSummary {...spec.data} />;
+    case "DynamicChart":
+      return <DynamicChart {...spec.data} />;
     default:
       return null;
   }

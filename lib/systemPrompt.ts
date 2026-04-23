@@ -36,6 +36,7 @@ Available components and when to use them:
 - EarningsHighlight: Company earnings results, guidance updates, analyst reactions, beats/misses
 - RiskFlag: Geopolitical events, regulatory risk, systemic market concerns, black swan events
 - NewsletterSummary: General narrative, opinion pieces, or content that doesn't fit the above
+- DynamicChart: Use when numerical data would be clearer as a visualization than a list. Good for sector performance comparisons (bar), price moves over a period (line/area), or portfolio breakdowns (pie). Specify chartType, a dataset array of objects, and the xKey/yKey field names that map into those objects.
 
 Always prioritize signal over noise. Surface what a sophisticated investor would want to act on.
 
@@ -74,6 +75,17 @@ Respond with only a JSON block in this exact format:
     {
       "type": "NewsletterSummary",
       "data": { "title": "...", "summary": "..." }
+    },
+    {
+      "type": "DynamicChart",
+      "data": {
+        "chartType": "bar",
+        "title": "Sector Performance",
+        "xKey": "sector",
+        "yKey": "performance",
+        "orientation": "horizontal",
+        "dataset": [{ "sector": "Technology", "performance": 1.2 }, { "sector": "Energy", "performance": -0.8 }]
+      }
     }
   ]
 }
