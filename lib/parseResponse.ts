@@ -61,6 +61,21 @@ const NewsletterSummarySchema = z.object({
   data: z.object({ title: z.string(), summary: z.string() }),
 });
 
+const DynamicChartSchema = z.object({
+  type: z.literal("DynamicChart"),
+  data: z.object({
+    chartType: z.enum(["bar", "line", "pie", "area", "scatter"]),
+    title: z.string(),
+    description: z.string().optional(),
+    xKey: z.string(),
+    yKey: z.string(),
+    colorBy: z.string().optional(),
+    orientation: z.enum(["horizontal", "vertical"]).optional(),
+    dataset: z.array(z.record(z.string(), z.unknown())),
+    colors: z.record(z.string(), z.string()).optional(),
+  }),
+});
+
 // Data structure used to hold values that can take on different types.
 // Zod uses it to validate different possible types against their respective schemas.
 const ComponentSchema = z.discriminatedUnion("type", [
@@ -71,6 +86,7 @@ const ComponentSchema = z.discriminatedUnion("type", [
   EarningsHighlightSchema,
   RiskFlagSchema,
   NewsletterSummarySchema,
+  DynamicChartSchema,
 ]);
 
 export type DigestComponent = z.infer<typeof ComponentSchema>;

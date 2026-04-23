@@ -10,4 +10,6 @@
 
 - **Settings navigation clears digest** — navigating to `/settings` and back remounts the page, resetting all React state. On Vercel, the return `/api/digest` call hits a fresh Lambda with an empty `/tmp`, so the cached briefing is gone and DigestPanel shows "Get today's briefing" as if no briefing exists. Fixed once filesystem cache is replaced with Vercel KV.
 
+- **Rename project to chews-meridian** — rename Vercel project in dashboard (Settings → General → Project Name), update `package.json` name field, and archive the chews-meridian repo. Wait until Vercel interviewers confirm they no longer need the current URL.
+
 - **Add retry logic for Gmail and Claude API calls** — transient timeouts are more common in production. Neither `lib/gmail.ts` nor `app/api/agent/route.ts` has any retry or backoff, so one flaky network call surfaces as a hard failure to the user.
