@@ -9,7 +9,7 @@ import { parseMood, parseComponents, parseProse } from "@/lib/parseResponse";
 import { MODEL_ID, INPUT_COST_PER_TOKEN, OUTPUT_COST_PER_TOKEN } from "@/lib/config";
 
 // Best-effort single-stream guard. Works within a warm Lambda instance; won't block
-// concurrent requests hitting separate Vercel invocations — that requires Vercel KV.
+// concurrent requests hitting separate Vercel invocations — a Redis SET NX mutex would fix that.
 let isRunning = false;
 
 export async function POST(req: Request) {
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
       isRunning = false;
       const inputTokens = usage.inputTokens ?? 0;
       const outputTokens = usage.outputTokens ?? 0;
-      recordUsage(inputTokens, outputTokens);
+      await recordUsage(inputTokens, outputTokens);
       const record = await saveDigest({
         mood: parseMood(text),
         prose: parseProse(text),
