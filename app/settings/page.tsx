@@ -5,6 +5,7 @@ import { ArrowLeft, ChartCandlestick } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import type { Theme } from "@/lib/theme";
 import { REFRESH_WINDOWS, NEWSLETTER_SENDERS, CONTEXT_WINDOW_DAYS } from "@/lib/config";
+import { PT_TIMEZONE } from "@/lib/utils";
 import { WATCHLIST } from "@/lib/watchlist";
 import { useEffect, useState } from "react";
 
@@ -23,7 +24,7 @@ const OPTIONS: { id: Theme; label: string; description: string }[] = [
 
 function formatDigestTimestamp(isoString: string): string {
   return new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Los_Angeles",
+    timeZone: PT_TIMEZONE,
     month: "long",
     day: "numeric",
     hour: "numeric",
@@ -34,10 +35,10 @@ function formatDigestTimestamp(isoString: string): string {
 
 function getContextLabel(): string {
   const now = new Date();
-  const month = now.toLocaleString("en-US", { month: "long", timeZone: "America/Los_Angeles" });
+  const month = now.toLocaleString("en-US", { month: "long", timeZone: PT_TIMEZONE });
   const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
   const dayOfMonth = parseInt(
-    new Intl.DateTimeFormat("en-US", { day: "numeric", timeZone: "America/Los_Angeles" }).format(now),
+    new Intl.DateTimeFormat("en-US", { day: "numeric", timeZone: PT_TIMEZONE }).format(now),
     10
   );
   const daysLeft = daysInMonth - dayOfMonth;
