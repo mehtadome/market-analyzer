@@ -1,5 +1,9 @@
 # Todo
 
+## Architecturally Imperfect
+
+- **Ticker standardization in prose** — tickers (e.g. AAPL, TSLA) appear as plain text in `BriefingSummary`, `RiskFlag`, `MacroSummaryCard`, and `NewsletterSummary` body fields. Structured tickers in `TickerMentionList` and `ChatDrawer` are already badged via `DigestTickerBadge`. Standardizing prose requires: (1) a detection strategy — regex is noisy (hits GDP, ETF, etc.), cross-referencing the digest's `TickerMentionList` is most accurate; (2) threading the ticker+direction map down through `DigestRenderer` → card components → `renderBold`; or introducing a React context to avoid prop drilling. Best approached as an extension to `renderBold` once the data threading story is clear.
+
 ## Next Session
 
 - **Next.js revalidation + caching** — explore `fetch` with `next: { revalidate }` and `unstable_cache` for the digest and ticker endpoints so Vercel can serve cached responses without always hitting Redis. Ref: https://nextjs.org/docs/14/app/building-your-application/data-fetching/fetching-caching-and-revalidating
