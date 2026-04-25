@@ -4,6 +4,7 @@ import { type UIMessage } from "ai";
 import { MessageCircle, X } from "lucide-react";
 import { ComponentRenderer } from "@/components/ComponentRenderer";
 import { getMessageText } from "@/lib/getMessageText";
+import { directionStyle } from "@/components/ui/DigestTickerBadge";
 import type { TickerSummary } from "@/app/api/tickers/route";
 
 interface ChatDrawerProps {
@@ -128,9 +129,9 @@ export function ChatDrawer({
                       style={{
                         padding: "0.15rem 0.55rem",
                         borderRadius: "4px",
-                        border: `1px solid ${t.direction === "up" ? "rgba(34,197,94,0.4)" : t.direction === "down" ? "rgba(239,68,68,0.4)" : "var(--dc-border)"}`,
-                        background: t.direction === "up" ? "rgba(34,197,94,0.10)" : t.direction === "down" ? "rgba(239,68,68,0.10)" : "var(--btn-bg)",
-                        color: t.direction === "up" ? "var(--dc-positive)" : t.direction === "down" ? "var(--dc-border-high)" : "var(--text-muted)",
+                        border: `1px solid ${(directionStyle[t.direction ?? "neutral"] ?? directionStyle.neutral).border}`,
+                        background: (directionStyle[t.direction ?? "neutral"] ?? directionStyle.neutral).bg,
+                        color: (directionStyle[t.direction ?? "neutral"] ?? directionStyle.neutral).color,
                         fontSize: "0.8125rem",
                         fontWeight: 700,
                         cursor: "pointer",
