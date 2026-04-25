@@ -66,7 +66,7 @@ export function TickerMentionChart({ tickers }: Props) {
     <div className="card">
       <div className="card__header">
         <div>
-          <div className="ds-label">Bi-weekly mention frequency</div>
+          <div className="ds-label">Last 7 days — mention frequency</div>
           <div className="ds-title" style={{ marginTop: "0.15rem" }}>
             Watchlist activity
           </div>
