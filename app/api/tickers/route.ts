@@ -1,20 +1,11 @@
 import { listDigests, getDigest } from "@/lib/digest";
+import type { TickerSpec, ComponentSpec } from "@/lib/types";
 
 export interface TickerSummary {
   symbol: string;
   direction: "up" | "down" | "neutral";
   lastSeen: string; // YYYY-MM-DD
   mentions: number; // total across last 7 days
-}
-
-interface TickerSpec {
-  symbol: string;
-  direction?: "up" | "down" | "neutral";
-}
-
-interface ComponentSpec {
-  type: string;
-  data: { tickers?: TickerSpec[] };
 }
 
 // Calls listDigests() to get all digest dates, filters out older than 7 days,
@@ -33,10 +24,9 @@ export async function GET() {
   for (const date of dates) {
     const digest = await getDigest(date);
     if (!digest) continue;
-
     for (const comp of digest.components as ComponentSpec[]) {
       if (comp.type !== "TickerMentionList") continue;
-      for (const t of comp.data.tickers ?? []) {
+      for (const t of (comp.data.tickers as TickerSpec[] | undefined) ?? []) {
         const existing = map.get(t.symbol);
         if (existing) {
           existing.mentions += 1;

@@ -9,10 +9,9 @@ import { DigestPanel } from "@/components/DigestPanel";
 import { TickersPanel } from "@/components/TickersPanel";
 import { ChatDrawer } from "@/components/ChatDrawer";
 import { parseMood } from "@/lib/parseResponse";
+import type { Mood } from "@/lib/parseResponse";
 import { getMessageText } from "@/lib/getMessageText";
 import type { TickerSummary } from "@/app/api/tickers/route";
-
-type Mood = "normal" | "alert" | "opportunity" | "danger";
 
 const BRIEFING_PROMPT = "What's in today's newsletter?";
 
