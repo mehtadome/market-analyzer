@@ -51,3 +51,6 @@ usage.json
 
 # generated digests (runtime output)
 /digests
+
+# claude worktrees (nested git repos)
+.claude/worktrees/
