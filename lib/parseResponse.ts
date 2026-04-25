@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-type Mood = "normal" | "alert" | "opportunity" | "danger";
+export type Mood = "normal" | "alert" | "opportunity" | "danger";
 
 // ── Component schemas ────────────────────────────────────────────────────────
 

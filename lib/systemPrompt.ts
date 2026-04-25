@@ -1,8 +1,6 @@
 import { WATCHLIST } from "@/lib/watchlist";
 import { NEWSLETTER_SENDERS } from "@/lib/config";
 
-export { NEWSLETTER_SENDERS };
-
 function buildSendersQuery(newerThan: string) {
   return `(${NEWSLETTER_SENDERS.map((s) => `from:${s}`).join(" OR ")}) newer_than:${newerThan}`;
 }

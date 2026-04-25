@@ -1,4 +1,5 @@
 import { redis } from "@/lib/redis";
+import type { TickerSpec, ComponentSpec } from "@/lib/types";
 
 export interface DigestRecord {
   date: string;         // YYYY-MM-DD
@@ -19,16 +20,6 @@ function digestKey(date: string) {
   return `digest:${date}`;
 }
 
-interface TickerSpec {
-  symbol: string;
-  context?: string;
-  direction?: "up" | "down" | "neutral";
-}
-
-interface ComponentSpec {
-  type: string;
-  data: Record<string, unknown>;
-}
 
 // Unions ticker symbols from the existing digest with the incoming one — newer context/direction wins per symbol.
 // Prevents multiple same-day briefings from overwriting earlier ticker signals.

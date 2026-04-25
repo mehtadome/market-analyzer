@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useFetchOnMount } from "@/hooks/useFetchOnMount";
 import Link from "next/link";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
@@ -9,10 +10,9 @@ import { DigestPanel } from "@/components/DigestPanel";
 import { TickersPanel } from "@/components/TickersPanel";
 import { ChatDrawer } from "@/components/ChatDrawer";
 import { parseMood } from "@/lib/parseResponse";
+import type { Mood } from "@/lib/parseResponse";
 import { getMessageText } from "@/lib/getMessageText";
 import type { TickerSummary } from "@/app/api/tickers/route";
-
-type Mood = "normal" | "alert" | "opportunity" | "danger";
 
 const BRIEFING_PROMPT = "What's in today's newsletter?";
 
@@ -93,45 +93,9 @@ export default function Home() {
   const mood: Mood = parseMood(briefingText);
   const showDigestLoading = isLoading && !briefingText.trim();
 
-  useEffect(() => {
-    // cancelled guards against stale async results — if the component unmounts before
-    // the fetch resolves, the cleanup sets cancelled=true and the setState is discarded.
-    // Async operations don't respect React's component lifecycle, so this must be done manually.
-    let cancelled = false;
-    void (async () => {
-      try {
-        const res = await fetch("/api/usage");
-        const data = await res.json();
-        if (!cancelled) setTotalCost(data.totalCostUsd);
-      } catch (e) { console.error("[usage] fetch failed", e); }
-    })();
-    return () => { cancelled = true; };
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      try {
-        const res = await fetch("/api/digest");
-        const data = await res.json();
-        if (!cancelled && data?.rawText) setCachedContent(data.rawText);
-      } catch (e) { console.error("[digest] fetch failed", e); }
-      finally { if (!cancelled) setCacheChecked(true); }
-    })();
-    return () => { cancelled = true; };
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      try {
-        const res = await fetch("/api/tickers");
-        const data = await res.json();
-        if (!cancelled && Array.isArray(data)) setTickers(data);
-      } catch (e) { console.error("[tickers] fetch failed", e); }
-    })();
-    return () => { cancelled = true; };
-  }, []);
+  useFetchOnMount<{ totalCostUsd: number }>("/api/usage", (data) => setTotalCost(data.totalCostUsd));
+  useFetchOnMount<{ rawText?: string }>("/api/digest", (data) => { if (data?.rawText) setCachedContent(data.rawText); }, { onFinally: () => setCacheChecked(true) });
+  useFetchOnMount<TickerSummary[]>("/api/tickers", (data) => { if (Array.isArray(data)) setTickers(data); });
 
   useEffect(() => {
     if (status !== "ready") return;

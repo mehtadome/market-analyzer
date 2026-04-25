@@ -85,7 +85,7 @@ function renderComponent(spec: DigestComponent) {
 
 /** Dashboard layout: full-width macro/risk/summary; tickers + sectors paired; earnings in a row.
  *  components = output of parseComponents() — each element is { type, data } from the model's JSON block. */
-export function DigestLayout({ components }: { components: DigestComponent[] }) {
+function DigestLayout({ components }: { components: DigestComponent[] }) {
   const rows: React.ReactNode[] = [];
   let i = 0;
 

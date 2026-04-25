@@ -1,18 +1,7 @@
 import { getCached, setCached } from "@/lib/cache";
 import { getDigest } from "@/lib/digest";
 import { REFRESH_WINDOWS } from "@/lib/config";
-
-// Returns the current hour (0-23) in PT, accounting for PST/PDT automatically.
-function ptHour(): number {
-  return parseInt(
-    new Intl.DateTimeFormat("en-US", {
-      timeZone: "America/Los_Angeles",
-      hour: "numeric",
-      hour12: false,
-    }).format(new Date()),
-    10
-  );
-}
+import { ptHour } from "@/lib/utils";
 
 // During these windows newsletters are likely to have updated — bypass cache
 // so the next briefing request fetches fresh content.

@@ -8,11 +8,7 @@ interface TickerMentionListProps {
   tickers: Ticker[];
 }
 
-const directionStyle: Record<string, { border: string; color: string; bg: string }> = {
-  up:      { border: "#22c55e44", color: "#16a34a", bg: "rgba(34,197,94,0.10)" },
-  down:    { border: "#ef444444", color: "#dc2626", bg: "rgba(239,68,68,0.10)" },
-  neutral: { border: "var(--dc-border)", color: "var(--text-muted)", bg: "var(--btn-bg)" },
-};
+import { directionStyle } from "@/components/ui/DigestTickerBadge";
 
 export function TickerMentionList({ tickers }: TickerMentionListProps) {
   return (

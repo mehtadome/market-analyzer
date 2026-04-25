@@ -1,4 +1,4 @@
-const directionStyle: Record<
+export const directionStyle: Record<
   string,
   { border: string; color: string; bg: string }
 > = {

@@ -1,5 +1,9 @@
 # Todo
 
+## Architecturally Imperfect
+
+- **Ticker standardization in prose** — tickers (e.g. AAPL, TSLA) appear as plain text in `BriefingSummary`, `RiskFlag`, `MacroSummaryCard`, and `NewsletterSummary` body fields. Structured tickers in `TickerMentionList` and `ChatDrawer` are already badged via `DigestTickerBadge`. Standardizing prose requires: (1) a detection strategy — regex is noisy (hits GDP, ETF, etc.), cross-referencing the digest's `TickerMentionList` is most accurate; (2) threading the ticker+direction map down through `DigestRenderer` → card components → `renderBold`; or introducing a React context to avoid prop drilling. Best approached as an extension to `renderBold` once the data threading story is clear.
+
 ## Next Session
 
 - **Next.js revalidation + caching** — explore `fetch` with `next: { revalidate }` and `unstable_cache` for the digest and ticker endpoints so Vercel can serve cached responses without always hitting Redis. Ref: https://nextjs.org/docs/14/app/building-your-application/data-fetching/fetching-caching-and-revalidating
@@ -19,6 +23,9 @@
 - **Add retry logic for Gmail and Claude API calls** — transient timeouts are more common in production. Neither `lib/gmail.ts` nor `app/api/agent/route.ts` has any retry or backoff, so one flaky network call surfaces as a hard failure to the user.
 
 ## At Scale
+
+- **Replace `cancelled` flag with `AbortController`** — `useFetchOnMount` uses a boolean flag to discard stale results, but the request still completes mid-flight. `AbortController` actually cancels the network request, which matters if responses are large or the user navigates frequently.
+
 
 - **`KEYS` in `listDigests` is a blocking scan** — `redis.keys("digest:*")` in `lib/digest.ts` blocks the Redis server while scanning. Fine for a personal tool with <100 keys, but at scale replace with `SCAN` which iterates in batches without blocking.
 
